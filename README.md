@@ -1,7 +1,20 @@
-# fuzzer
 ## COMP6447 Fuzzer Major Project
 Run `python3 fuzzer.py program sampleinput.txt` to test fuzzer.
 
+## Installation
+``` 
+sudo apt install python3-pip
+pip3 install pwntools
+```
+## Development
+```
+pip3 install pipenv
+pipenv install --dev
+```
+### To run tests
+```
+pytest
+```
 ### Assumption
 - All binaries will have a vulnerability.
 - All binaries will function normally (return 0, not crash, no errors) when the relevant input.txt is passed into them.
