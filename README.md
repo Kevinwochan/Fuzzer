@@ -4,12 +4,11 @@ Run `python3 fuzzer.py program sampleinput.txt` to test fuzzer.
 ## Installation
 ``` 
 sudo apt install python3-pip
-pip3 install pwntools
+pip3 install -r requirements.txt
 ```
 ## Development
 ```
-pip3 install pipenv
-pipenv install --dev
+pip3 install -r requirements-dev.txt
 ```
 ### To run tests
 ```
