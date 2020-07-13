@@ -65,3 +65,12 @@ def test_format_data_basic():
     handler = JsonHandler(json_string)
     data = ["0", 0, "1", 1, "2", 2, "3", 3, "4", 4, "5", 5, "6", 6, "7", 7]
     assert handler.format_data(data) == '{"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7}'
+
+def test_format_data_with_mutation():
+    '''checks that a json flattenned and reformed with the same data is the same (associative)'''
+    json_string = ''
+    with open('./files/json2.txt') as f:
+        json_string = ''.join(f.readlines())
+    handler = JsonHandler(json_string)
+    data = ["A"*10, 0, "1", 1, "2", 2, "3", 3, "4", 4, "5", 5, "6", 6, "7", 7]
+    assert handler.format_data(data) == '{"' + 'A'*10 +'": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7}'
