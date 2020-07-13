@@ -17,7 +17,7 @@ class CsvHandler(handler):
         for row in parsed_sample:
             self.input_data.append(row.values())
             self.format.append([0]*row_values)
-        self.input_data.insert(0, rows.keys())
+        self.input_data.insert(0, rows.keys()) 
 
     def sample_input_parser_dialect(self, sample_input_file_path):
         csvfile = open(sample_input_file_path)
