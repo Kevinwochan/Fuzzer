@@ -14,20 +14,28 @@ class JsonHandler(handler):
         if isinstance(parsed_sample, list): 
             for item in parsed_sample: 
                 self.input_data.append(item)
-                self.format[pos] = pos+1
-                pos+=1
+                self.format = [i for i in range(len(parsed_sample))]
         elif isinstance(parsed_sample, dict): 
             for key, val in parsed_sample.items():
                 self.input_data.append(key)
                 self.input_data.append(val)
-                self.format[pos] = pos+1
+                self.format[str(pos)] = pos+1
                 pos+=1
                 pos+=1
+                '''
+                parsed_sample = {"0": 1, "2": 3}
+                self.format = {
+                    "0": 1,
+                    "2": 3
+                }
+                self.input_data = ["0", 1, "2", 3]
+                '''
         else:
             Exception('JSON data type not recognised')
 
     def decompose(self):
         ''' recursive call to decompose complex JSON '''
+        #TODO: cant handle complex JSON
         return
 
     def get_sample(self):
