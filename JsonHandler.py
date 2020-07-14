@@ -1,84 +1,67 @@
-from handler import handler
+from Handler import Handler
 import json
 
-class JsonHandler(handler):
-    def __init__(self, sample_input):
-        self.input_data = []
-        self.format = dict() 
-        self.sample_input_parser(sample_input)
+class JsonHandler(Handler):
+    def __init__(self, sample_input_file_path):
+        self._data = []
+        self.sample = self.parse(sample_input_file_path)
 
-    def sample_input_parser(self, sample_input):
-        ''' decomposes JSON into 1.the data, 2.the structure '''
-        pos = 0
-        parsed_sample = json.loads(sample_input)
-        if isinstance(parsed_sample, list): 
-            for item in parsed_sample: 
-                self.input_data.append(item)
-                self.format = [i for i in range(len(parsed_sample))]
-        elif isinstance(parsed_sample, dict): 
-            for key, val in parsed_sample.items():
-                self.input_data.append(key)
-                self.input_data.append(val)
-                self.format[str(pos)] = pos+1
-                pos+=1
-                pos+=1
-                '''
-                parsed_sample = {"0": 1, "2": 3}
-                self.format = {
-                    "0": 1,
-                    "2": 3
-                }
-                self.input_data = ["0", 1, "2", 3]
-                '''
-        else:
-            Exception('JSON data type not recognised')
+    @property
+    def data(self):
+        return self._data
 
-    def decompose(self):
+    def parse(self, sample_input_file_path):
+        '''
+            decomposes JSON into an simple array of data
+            parsed_sample = {"0": 1, "2": 3}
+            self.sample = {
+                "0": 1,
+                "2": 3
+            }
+            self._data = ["0", 1, "2", 3]
+        '''
+        sample_input = ''
+        with open(sample_input_file_path) as f:
+            sample_input = f.read().replace('\n', '')
+        parsed_json = json.loads(sample_input)
+        self.decompose(parsed_json)
+        return parsed_json
+
+    def decompose(self, data):
         ''' recursive call to decompose complex JSON '''
-        #TODO: cant handle complex JSON
-        return
+        if isinstance(data, list): 
+            for item in data: 
+                self.decompose(item)
+        elif isinstance(data, dict): 
+            for key, val in data.items():
+                self._data.append(key)
+                self.decompose(val)
+        elif isinstance(data, (str, int, float, bool)):
+            self._data.append(data)
+        else:
+            raise TypeError('JSON data type not recognised')
 
-    def get_sample(self):
-        ''' returns the array of flattenned input '''
-        return self.input_data
-    
-    def format_data(self, mutated_data):
-        ''' uses the mutated_data array to construct a input of the same structure as the sample'''
-        assert len(mutated_data) == len(self.input_data)
-        mutated_input = dict()
-        for key, val in self.format.items(): 
-            if isinstance(val, list):
-               mutated_input[mutated_data.pop(0)] = [mutated_data.pop(0) for i in range(len(val))]
-            else:
+    def construct(self, structure, mutated_data):
+        print()
+        print('muated is :' +str(mutated_data))
+        print('structure is:' + str(structure))
+        if isinstance(structure, list): 
+            return [self.construct(item, mutated_data) for item in structure]
+        elif isinstance(structure, dict): 
+            c = dict()
+            for key, val in structure.items():
                 key = mutated_data.pop(0)
-                value = mutated_data.pop(0)
-                mutated_input[key] = value
+                val = self.construct(val, mutated_data)
+                c[key] = val
+            return c
+        elif isinstance(structure, (str, int, float, bool)):
+            return mutated_data.pop(0)
+        else:
+            raise TypeError('JSON data type not recognised')
+            return None
+
+    def format(self, mutated_data):
+        ''' uses the mutated_data array to construct a input of the same structure as the sample'''
+        mutated_input = self.construct(self.sample, mutated_data)
         return json.dumps(mutated_input)
 
-# TODO: move tests somewhere else?
-def test_input_parser_basic():
-    '''checks that a json is correctly flattenned'''
-    json_string = ''
-    with open('./files/json2.txt') as f:
-        json_string = ''.join(f.readlines())
-    handler = JsonHandler(json_string)
-    flattened_json = handler.get_sample()
-    assert flattened_json == ["0", 0, "1", 1, "2", 2, "3", 3, "4", 4, "5", 5, "6", 6, "7", 7]
-
-def test_format_data_basic():
-    '''checks that a json flattenned and reformed with the same data is the same (associative)'''
-    json_string = ''
-    with open('./files/json2.txt') as f:
-        json_string = ''.join(f.readlines())
-    handler = JsonHandler(json_string)
-    data = ["0", 0, "1", 1, "2", 2, "3", 3, "4", 4, "5", 5, "6", 6, "7", 7]
-    assert handler.format_data(data) == '{"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7}'
-
-def test_format_data_with_mutation():
-    '''checks that a json flattenned and reformed with the same data is the same (associative)'''
-    json_string = ''
-    with open('./files/json2.txt') as f:
-        json_string = ''.join(f.readlines())
-    handler = JsonHandler(json_string)
-    data = ["A"*10, 0, "1", 1, "2", 2, "3", 3, "4", 4, "5", 5, "6", 6, "7", 7]
-    assert handler.format_data(data) == '{"' + 'A'*10 +'": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7}'
