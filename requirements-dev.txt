@@ -1,3 +1,4 @@
 pwntools==4.2.1
 pytest==5.4.3
 yapf==0.30.0
+pylint==2.5.3
