@@ -7,12 +7,9 @@ class FormatStringMutator(BaseMutator):
 
     def mutate(self) -> str:
         """
-        Can be a generator:
-        mutator = Mutator("some_strings")
-        for mutated_str in mutator.mutate():
-            do_stuff(mutated_str)
+        Return format strings
         """
-        # Format string to find stack offset
+        # Format string %x
         classic_x = self.input_str + ("AAAAAA" + "%x" * 100)
         yield classic_x
 

@@ -7,10 +7,7 @@ class IntOverflowMutator(BaseMutator):
 
     def mutate(self) -> str:
         """
-        Can be a generator:
-        mutator = Mutator("some_strings")
-        for mutated_str in mutator.mutate():
-            do_stuff(mutated_str)
+        Return out-of-bound integers
         """
         # Test negative number
         classic = self.input_str + ("-1000")

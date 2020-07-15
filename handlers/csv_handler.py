@@ -1,6 +1,5 @@
 import csv
 import copy
-import random
 from typing import List
 from handlers.base_handler import BaseHandler
 from mutators.bufferoverflow_mutator import BufOverflowMutator
@@ -30,6 +29,9 @@ class CsvHandler(BaseHandler):
         """
         with open(self.sample_filename, "r") as csv_file:
             data = list(csv.reader(csv_file))
+            # Remove last blank line if exists
+            if data[-1] == [""] or len(data[-1]) == 0:
+                data.pop()
             return data
         return []
 
@@ -39,6 +41,8 @@ class CsvHandler(BaseHandler):
         """
         with open(self.sample_filename, "r") as txt_file:
             raw_data = txt_file.read()
+            # Remove last blank line if exists
+            raw_data = raw_data.rstrip()
             return raw_data
         return ""
 
@@ -72,6 +76,7 @@ class CsvHandler(BaseHandler):
         rand_byte = RandomByteMutator()
         mutators = [buf_overflow, fmt_str, rand_byte]
 
+        # Pass data through mutators
         for mutator in mutators:
             # Mutate raw data
             mutator.set_input_str(self.data_raw)
@@ -87,17 +92,19 @@ class CsvHandler(BaseHandler):
                         new_data[row_n][col_n] = mutated_str
                         yield self.format_data_list(new_data)
 
-        # Append new columns up to 1000 columns
-        for row_n, row in enumerate(self.data_list):
-            new_data = copy.deepcopy(self.data_list)
-            for i in range(1000):
-                for j in range(i):
-                    new_data[row_n].append("A")
-                    yield self.format_data_list(new_data)
+        # # Append new columns up to 1000 columns
+        # for row_n, row in enumerate(self.data_list):
+        #     new_data = copy.deepcopy(self.data_list)
+        #     for i in range(1000):
+        #         for j in range(i):
+        #             new_data[row_n].append("A")
+        #             yield self.format_data_list(new_data)
 
-        # Duplicate rows up to 1000 rows
-        new_data = copy.deepcopy(self.data_list)
-        for i in range(1000):
-            for j in range(i):
-                new_data.append(new_data[random.randint(0, len(new_data) - 1)])
-                yield self.format_data_list(new_data)
+        # # Duplicate rows up to 1000 rows
+        # new_data = copy.deepcopy(self.data_list)
+        # for i in range(1000):
+        #     for j in range(i):
+        #         new_data.append(
+        #             new_data[random.randint(0, len(new_data) - 1)]
+        #         )
+        #         yield self.format_data_list(new_data)
