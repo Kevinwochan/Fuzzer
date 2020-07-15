@@ -1,12 +1,11 @@
 import random
-from pwn import *
 from mutators.base_mutator import BaseMutator
 
 
 class RandomByteMutator(BaseMutator):
     def __init__(self, input_str: str = ""):
         super().__init__(input_str)
-    
+
     def _byte_flip(self) -> str:
         byte_array = bytearray(self.input_str, "UTF-8")
         for i in range(0, len(byte_array)):

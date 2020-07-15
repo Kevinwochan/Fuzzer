@@ -1,11 +1,8 @@
 import csv
 import copy
-import io
-import re
 import random
 from typing import List
 from handlers.base_handler import BaseHandler
-from mutators.base_mutator import BaseMutator
 from mutators.bufferoverflow_mutator import BufOverflowMutator
 from mutators.formatstring_mutator import FormatStringMutator
 from mutators.random_byte_mutator import RandomByteMutator
@@ -52,7 +49,7 @@ class CsvHandler(BaseHandler):
         Example:
         Input:
         [["this","is","a","header"],["data1","data2","data3","data4"]]
-        
+
         Output:
         this,is,a,header
         data1,data2,data3,data4
