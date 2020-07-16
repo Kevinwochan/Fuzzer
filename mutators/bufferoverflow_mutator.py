@@ -30,12 +30,12 @@ class BufOverflowMutator(BaseMutator):
             classic = self.input_str + cyclic(i).decode("utf-8")
             yield classic
 
-        # Append input with random numbers
+        # Append input with various strings
         for i in range(0, max_length, step):
-            int_classic = self.input_str + (
-                str(random.randint(-999999999, 999999999)) * i
+            strings = self.input_str + "".join(
+                random.choice(string.printable) for s in range(i)
             )
-            yield int_classic
+            yield strings
 
         # Append new lines
         for i in range(0, max_length, step):

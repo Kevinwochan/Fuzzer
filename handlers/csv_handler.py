@@ -14,6 +14,15 @@ class CsvHandler(BaseHandler):
 
     def __init__(self, sample_filename: str):
         super().__init__(sample_filename)
+        self._data_list = self.parse_to_list()
+
+    @property
+    def data_list(self) -> List[list]:
+        return self._data_list
+
+    @data_list.setter
+    def set_data_list(self, data_list: List[list]):
+        self._data_list = data_list
 
     def parse_to_list(self) -> list:
         """
@@ -91,20 +100,3 @@ class CsvHandler(BaseHandler):
                     for mutated_str in mutator.mutate():
                         new_data[row_n][col_n] = mutated_str
                         yield self.format_data_list(new_data)
-
-        # # Append new columns up to 1000 columns
-        # for row_n, row in enumerate(self.data_list):
-        #     new_data = copy.deepcopy(self.data_list)
-        #     for i in range(1000):
-        #         for j in range(i):
-        #             new_data[row_n].append("A")
-        #             yield self.format_data_list(new_data)
-
-        # # Duplicate rows up to 1000 rows
-        # new_data = copy.deepcopy(self.data_list)
-        # for i in range(1000):
-        #     for j in range(i):
-        #         new_data.append(
-        #             new_data[random.randint(0, len(new_data) - 1)]
-        #         )
-        #         yield self.format_data_list(new_data)
