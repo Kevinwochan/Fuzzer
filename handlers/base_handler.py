@@ -7,12 +7,7 @@ class BaseHandler(ABC):
 
     def __init__(self, sample_filename: str):
         self._sample_filename = sample_filename
-        self._data_list = self.parse_to_list()
         self._data_raw = self.parse_to_raw()
-
-    @abstractmethod
-    def parse_to_list(self) -> list:
-        pass
 
     @abstractmethod
     def parse_to_raw(self) -> str:
