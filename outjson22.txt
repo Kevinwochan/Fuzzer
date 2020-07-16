@@ -1,2 +1,0 @@
-[*] Binary: ./files/json2
-[*] Input: ./files/json2.txt
