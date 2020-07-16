@@ -3,7 +3,7 @@ from handlers.base_handler import BaseHandler
 from mutators.bufferoverflow_mutator import BufOverflowMutator
 from mutators.formatstring_mutator import FormatStringMutator
 from mutators.random_byte_mutator import RandomByteMutator
-from mutators.bad_mutator import BadMutator
+from mutators.integeroverflow_mutator import IntOverflowMutator
 
 
 class JsonHandler(BaseHandler):
@@ -71,20 +71,18 @@ class JsonHandler(BaseHandler):
         """
         Generate mutated strings from the initial input file.
         """
-        ''''
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
         self.mutators = [buf_overflow, fmt_str, rand_byte]
-        '''
-        self.mutators = [BadMutator()]
         # Feed my hungry mutators
-        '''
-        for mutator in mutators:
+        for mutator in self.mutators:
             mutator.set_input_str(self.data_raw)
             for mutated_str in mutator.mutate():
                 yield mutated_str
-        '''
         # MUTATE each field
+        int_overflow = IntOverflowMutator()
+        self.mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
+        # Feed my hungry mutators
         for mutated_data in self.mutate_structure(self._data_dict):
             yield json.dumps(mutated_data, indent=4)
