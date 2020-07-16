@@ -16,6 +16,14 @@ class CsvHandler(BaseHandler):
         super().__init__(sample_filename)
         self._data_list = self.parse_to_list()
 
+    @property
+    def data_list(self):
+        return self._data_list
+
+    @data_list.setter
+    def data_list(self, data_list: list):
+        self._data_list = data_list
+
     def parse_to_list(self) -> list:
         """
         Given a csv file, return a list of row dictionary.

@@ -1,4 +1,3 @@
-from typing import List
 from abc import ABC, ABCMeta, abstractmethod
 
 
@@ -14,10 +13,6 @@ class BaseHandler(ABC):
         pass
 
     @abstractmethod
-    def format_data_list(self, data: List[list]) -> str:
-        pass
-
-    @abstractmethod
     def generate_input(self) -> str:
         pass
 
@@ -28,22 +23,6 @@ class BaseHandler(ABC):
     @sample_filename.setter
     def set_sample_filename(self, sample_filename: str):
         self._sample_filename = sample_filename
-
-    @property
-    def data_dict(self) -> dict:
-        return self._data_dict
-
-    @data_dict.setter
-    def set_data_dict(self, data_dict: dict):
-        self._data_dict = data_dict
-
-    @property
-    def data_list(self) -> List[list]:
-        return self._data_list
-
-    @data_list.setter
-    def set_data_list(self, data_list: List[list]):
-        self._data_list = data_list
 
     @property
     def data_raw(self) -> str:
