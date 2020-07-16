@@ -30,6 +30,14 @@ class BaseHandler(ABC):
         self._sample_filename = sample_filename
 
     @property
+    def data_dict(self) -> dict:
+        return self._data_dict
+
+    @data_dict.setter
+    def set_data_list(self, data_dict: dict):
+        self._data_dict = data_dict
+
+    @property
     def data_list(self) -> List[list]:
         return self._data_list
 

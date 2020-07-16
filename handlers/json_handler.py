@@ -5,6 +5,7 @@ from mutators.bufferoverflow_mutator import BufOverflowMutator
 from mutators.formatstring_mutator import FormatStringMutator
 from mutators.random_byte_mutator import RandomByteMutator
 
+# pylint: disable=no-value-for-parameter
 class JsonHandler(BaseHandler):
     """
     Hander for JSON file/input
@@ -12,6 +13,9 @@ class JsonHandler(BaseHandler):
     def __init__(self, sample_filename: str):
         super().__init__(sample_filename)
         self._data_parsed = dict()
+
+    def parse_to_raw(self) -> str:
+        return self._data_raw
 
     def parse_to_list(self) -> list:
         '''
@@ -89,9 +93,55 @@ class JsonHandler(BaseHandler):
         mutated_input = self.construct(self._data_parsed, data)
         return json.dumps(mutated_input)
 
-    def generate_input(self) ->str:
+    def do_the_thing(self, parent, item, mutators):
+        '''
+        iterates through to child elements of a tree
+        permutes all possible mutation on each child
+        '''
+        if isinstance(parent, dict):
+            (key, value) = item
+            # recursive cases
+            if isinstance(value, list):
+                value = self.traverse_list(item)
+            elif isinstance(value, dict):
+                value = self.traverse_dict(item)
+            else:
+                for mutator in mutators:
+                    mutator.set_input_str(value)
+                    save = parent[key]
+                    for mutated_str in mutator.mutate():
+                        parent[key] = mutated_str
+                        yield parent
+                    parent[key] = save
+
+        # item can't break down further in list
+        elif isinstance(parent, list):
+            (index, value) = item
+            if isinstance(item, list):
+                item = self.traverse_list(item)
+            elif isinstance(item, dict):
+                item = self.traverse_dict(item)
+            else: # int, string, etc
+                for mutator in mutators:
+                    mutator.set_input_str(item)
+                    for mutated_str in mutator.mutate():
+                        parent[index] = mutated_str
+                        yield parent
+                parent[index] = item
+
+    def traverse_dict(self, data: dict, mutators) -> dict:
+        for key, value in enumerate(data.items()):
+            data[key] = self.do_the_thing((key, value), mutators)
+            yield data
+    
+    def traverse_list(self, data: list, mutators) -> list:
+        for (index, value) in enumerate(data):
+            data[index] = self.do_the_thing((index, value), mutators)
+            yield data
+
+    def generate_input(self) -> str:
         """
-        Gnerate mutated strings
+        Generate mutated strings from the initial input file.
         """
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
@@ -103,11 +153,7 @@ class JsonHandler(BaseHandler):
             mutator.set_input_str(self.data_raw)
             for mutated_str in mutator.mutate():
                 yield mutated_str
-            # MUTATE each field
-            for field in enumerate(self.data_list):
-                new_data = copy.deepcopy(self.data_list)
-                for mutated_str in mutator.mutate():
-                    field = mutated_str
-                yield self.format_data_list(new_data)
-            # MUTATE MY LOVLIES!    
 
+        # MUTATE each field
+        yield self.traverse_dict(self.data_dict, mutators)
+        # MUTATE MY LOVLIES!    
