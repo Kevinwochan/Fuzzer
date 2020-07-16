@@ -1,0 +1,5 @@
+[*] Binary: files/json1
+[*] Input: files/json1.txt
+[x] Starting local process 'files/json1'
+[!] Neither 'qemu-i386' nor 'qemu-i386-static' are available
+[-] Starting local process 'files/json1': Failed

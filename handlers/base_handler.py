@@ -34,7 +34,7 @@ class BaseHandler(ABC):
         return self._data_dict
 
     @data_dict.setter
-    def set_data_list(self, data_dict: dict):
+    def set_data_dict(self, data_dict: dict):
         self._data_dict = data_dict
 
     @property

@@ -13,9 +13,17 @@ class JsonHandler(BaseHandler):
     def __init__(self, sample_filename: str):
         super().__init__(sample_filename)
         self._data_parsed = dict()
+        self._data_list = self.parse_to_list()
+        self._data_dict = self.parse_to_dict()
+        self.mutators = []
 
     def parse_to_raw(self) -> str:
-        return self._data_raw
+        with open(self.sample_filename, "r") as txt_file:
+            raw_data = txt_file.read()
+            # Remove last blank line if exists
+            raw_data = raw_data.rstrip()
+            return raw_data
+        return ""
 
     def parse_to_list(self) -> list:
         '''
@@ -28,13 +36,19 @@ class JsonHandler(BaseHandler):
             self._data = ["0", 1, "2", 3]
         '''
         with open(self.sample_filename, "r") as f:
-            sample_input = f.read().replace('\n', '')
-            self._data_parsed = json.loads(sample_input)
+            #sample_input = f.read().replace('\n', '')
+            #self._data_parsed = json.loads(sample_input)
+
+            self._data_parsed = json.load(f)
             data = self.decompose(self._data_parsed)
             return data
         return []
 
-    @classmethod
+    def parse_to_dict(self) -> dict:
+        with open(self.sample_filename, "r") as f:
+               return json.load(f)
+        return dict()
+
     def decompose(self, data) -> list:
         '''
             recursive call to decompose complex JSON into a flat list
@@ -61,7 +75,7 @@ class JsonHandler(BaseHandler):
 
         raise TypeError('JSON data type not recognised')
 
-    @classmethod
+
     def construct(self, structure, mutated_data):
         '''
             Example:
@@ -139,6 +153,40 @@ class JsonHandler(BaseHandler):
             data[index] = self.do_the_thing((index, value), mutators)
             yield data
 
+
+    def mutate_structure(self, data):
+        if isinstance(data, dict):
+            item = self.mutate_dict(data)
+        elif isinstance(data, list):
+            item = self.mutate_list(data)
+        else:
+            item = self.mutate_elem(data)
+        yield item
+    
+    def mutate_dict(self, data):
+        for (k, v) in data.items():
+            item = self.mutate_structure(v)
+            data[k] = item
+            yield data
+
+    def mutate_list(self, data): #call do_the_thing rather than repeating code...how am i so bad...it is just the recursive case
+        for i, elem in enumerate(data):
+            item = self.mutate_structure(elem)
+            data[i] = item
+            yield data
+
+    #have mutators as class attributes
+    def mutate_elem(self, data):
+        save = data
+        for mutator in self.mutators:
+            # mutate using raw string
+            mutator.set_input_str(str(data)) #NEEDS TO BE FIXED MAYBER?
+            #save = data #TODO NEEDS TO BE A DEEP COPY does deep copy funcion work on primitives
+            for mutated_str in mutator.mutate():
+                yield mutated_str
+            data = save
+        yield save
+
     def generate_input(self) -> str:
         """
         Generate mutated strings from the initial input file.
@@ -147,13 +195,31 @@ class JsonHandler(BaseHandler):
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
         mutators = [buf_overflow, fmt_str, rand_byte]
+        self.mutators = mutators
         # Feed my hungry mutators
+        '''
         for mutator in mutators:
             # mutate using raw string
             mutator.set_input_str(self.data_raw)
             for mutated_str in mutator.mutate():
                 yield mutated_str
-
+        '''
         # MUTATE each field
-        yield self.traverse_dict(self.data_dict, mutators)
-        # MUTATE MY LOVLIES!    
+        # yield self.traverse_dict(self._data_parsed, mutators)
+        yield json.dump(self.mutate_structure(self._data_dict), indent=4)
+
+    def generate_listbased_input(self) -> str:
+        '''
+        '''
+        buf_overflow = BufOverflowMutator()
+        fmt_str = FormatStringMutator()
+        rand_byte = RandomByteMutator()
+        mutators = [buf_overflow, fmt_str, rand_byte]
+        for index, value in enumerate(self._data_list):
+            for mutator in mutators:
+                mutator.set_input_str(str(value))
+                for mutate_str in mutator.mutate():
+                    new_data = copy.deepcopy(self._data_list)
+                    new_data[index] = mutate_str
+                    yield json.dumps(self.construct(self._data_parsed, new_data), indent=4)
+

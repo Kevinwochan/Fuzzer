@@ -13,7 +13,7 @@ class JsonHandlerTests(unittest.TestCase):
         self.tmp_file = tempfile.NamedTemporaryFile(mode="w")
         self.test_data = {"len":12, "input":"AAAABBBBCCCC", "more_data":["a","bb"]}
         self.test_data_list = ["len",12, "input","AAAABBBBCCCC", "more_data", "a","bb"]
-        self.test_data_raw = '{\n"len": 12,\n"input": "AAAABBBBCCCC",\n"more_data": ["a", "bb"]\n}'
+        self.test_data_raw = '{\n    "len": 12,\n    "input": "AAAABBBBCCCC",\n    "more_data": [\n        "a",\n        "bb"\n    ]\n}'
         # Write test data to temp file
         with open(self.tmp_file.name, "w") as tmp_json:
             json.dump(self.test_data, tmp_json, indent=4) # indenting matches samples
