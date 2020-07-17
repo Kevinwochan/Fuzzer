@@ -11,7 +11,7 @@ class IntOverflowMutator(BaseMutator):
         """
         # Test negative number
         while start <= 0xFFFFFFFFF:
-            start *= 2
+            start = start**2
             yield start
             start *= -1
             yield start
