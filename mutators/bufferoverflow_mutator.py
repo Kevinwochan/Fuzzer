@@ -8,9 +8,6 @@ class BufOverflowMutator(BaseMutator):
     def __init__(self, input_str: str = ""):
         super().__init__(input_str)
 
-    def __init__(self, input_int: int = ""):
-        super().__init__(str(input_int))
-
     def mutate(self, max_length: int = 1024, step: int = 128) -> str:
         """
         Return buffer overflow payloads up to
