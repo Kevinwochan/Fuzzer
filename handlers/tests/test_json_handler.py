@@ -48,7 +48,7 @@ class JsonHandlerTests(unittest.TestCase):
         """
         self.assertEqual(list(self.handler.mutate_elem("1")), ["A", "1"])
 
-    def test_generate_input(self):
+    def test_mutate_structure(self):
         """
         Tests that a JSON is mutated in every field
         """
