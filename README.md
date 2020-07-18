@@ -7,18 +7,46 @@ Run `python3 fuzzer.py program sampleinput.txt` to run fuzzer.
 Run `python3 -m unittest` to run unit tests.
 
 ## Installation
-``` 
+
+```shell
 sudo apt install python3-pip
 pip3 install -r requirements.txt
 ```
+
 ## Development
-```
+
+```shell
 pip3 install -r requirements-dev.txt
 ```
+
 ### To run tests
-```
+
+```shell
 pytest
 ```
+
+### Compile to binary
+
+#### Install dependencies
+
+```shell
+sudo apt-get install python3-dev
+sudo apt-get install cython3
+```
+
+#### Compile
+
+```shell
+cython3 --embed -o fuzzer.c fuzzer.py
+gcc -Os -I /usr/include/python3.8 -o fuzzer fuzzer.c -lpython3.8 -lpthread -lm -lutil -ldl
+```
+
+#### Run the binary
+
+```shell
+./fuzzer program sampleinput.txt
+```
+
 ### Assumption
 
 - All binaries will have a vulnerability.

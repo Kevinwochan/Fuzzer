@@ -1,4 +1,5 @@
 import json
+from typing import List
 from handlers.base_handler import BaseHandler
 from mutators.base_mutator import BaseMutator
 from mutators.bufferoverflow_mutator import BufOverflowMutator
@@ -20,7 +21,7 @@ class JsonHandler(BaseHandler):
         self.mutators = [buf_overflow, fmt_str, rand_byte]
 
     @property
-    def mutators(self) -> list[BaseMutator]:
+    def mutators(self) -> List[BaseMutator]:
         return self._mutators
 
     @mutators.setter
