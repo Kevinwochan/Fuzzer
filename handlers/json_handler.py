@@ -81,8 +81,5 @@ class JsonHandler(BaseHandler):
             for mutated_str in mutator.mutate():
                 yield mutated_str
         # MUTATE each field
-        int_overflow = IntOverflowMutator()
-        self.mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
-        # Feed my hungry mutators
         for mutated_data in self.mutate_structure(self._data_dict):
             yield json.dumps(mutated_data, indent=4)
