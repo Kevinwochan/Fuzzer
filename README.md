@@ -6,6 +6,19 @@ Run `python3 fuzzer.py program sampleinput.txt` to run fuzzer.
 
 Run `python3 -m unittest` to run unit tests.
 
+## Installation
+``` 
+sudo apt install python3-pip
+pip3 install -r requirements.txt
+```
+## Development
+```
+pip3 install -r requirements-dev.txt
+```
+### To run tests
+```
+pytest
+```
 ### Assumption
 
 - All binaries will have a vulnerability.
