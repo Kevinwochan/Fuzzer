@@ -17,11 +17,11 @@ class CsvHandler(BaseHandler):
         self._data_list = data_list
 
     @property
-    def data_list(self):
+    def data_list(self) -> List[list]:
         return self._data_list
 
     @data_list.setter
-    def data_list(self, data_list: list):
+    def set_data_list(self, data_list: List[list]):
         self._data_list = data_list
 
     def format_data_list(self, data: List[list]) -> str:

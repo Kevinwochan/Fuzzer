@@ -73,19 +73,22 @@ class IoController:
     def get_handlers(self) -> list:
         return self.handlers
 
-    def run(self, input_str: str = "") -> int:
+    def run(self, input_str: str = "") -> bool:
         p = process(self.binary_path)
-        p.send(input_str)
+        try:
+            p.send(input_str)
+        except:
+            return False
         p.proc.stdin.close()
 
         log.warn(f"Trying {input_str}")
 
         if p.poll(block=True) != 0:
             p.close()
-            return 1
+            return True
         else:
             p.close()
-            return 0
+            return False
 
     def warn_unhandled_ftype(self) -> None:
         log.warn(f"{self.input_path} unsupported")
