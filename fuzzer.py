@@ -40,9 +40,11 @@ if __name__ == "__main__":
     vuln_count = 0
     for input_str in handler.generate_input():
         p = process(BINARY)
-        p.send(input_str)
-        p.proc.stdin.close()
-
+        try:
+            p.send(input_str)
+            p.proc.stdin.close()
+        except:
+            continue
         log.warn(f"Trying {input_str}")
 
         if p.poll(block=True) != 0:
@@ -52,5 +54,4 @@ if __name__ == "__main__":
             with open(f"{OUTPUT}/{vuln_count}", "w") as f:
                 f.write(input_str)
                 exit()
-
         p.close()
