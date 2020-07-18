@@ -20,7 +20,7 @@ class JsonHandler(BaseHandler):
         self.mutators = [buf_overflow, fmt_str, rand_byte]
 
     @property
-    def mutators(self) -> list[BaseMutator]:
+    def mutators(self):
         return self._mutators
 
     @mutators.setter
