@@ -12,9 +12,9 @@ class JsonHandler(BaseHandler):
     '''
     Hander for JSON file/input
     '''
-    def __init__(self, sample_filename: str):
-        super().__init__(sample_filename)
-        self._data_dict = self.parse_to_dict()
+    def __init__(self, data: dict, raw_data: str):
+        super().__init__(raw_data)
+        self._data_dict = data
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
@@ -27,19 +27,6 @@ class JsonHandler(BaseHandler):
     @mutators.setter
     def mutators(self, mutators: list):
         self._mutators = mutators
-
-    def parse_to_raw(self) -> str:
-        with open(self.sample_filename, "r") as txt_file:
-            raw_data = txt_file.read()
-            # Remove last blank line if exists
-            raw_data = raw_data.rstrip()
-            return raw_data
-        return ""
-
-    def parse_to_dict(self) -> dict:
-        with open(self.sample_filename, "r") as f:
-            return json.load(f)
-        return dict()
 
     def mutate_structure(self, data):
         if isinstance(data, dict):
