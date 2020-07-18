@@ -43,9 +43,9 @@ if __name__ == "__main__":
         p = process(BINARY)
         try:
             p.send(input_str)
-            p.proc.stdin.close()
         except:
             continue
+        p.proc.stdin.close()
         log.warn(f"Trying {input_str}")
 
         if p.poll(block=True) != 0:
