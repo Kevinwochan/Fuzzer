@@ -12,9 +12,9 @@ class CsvHandler(BaseHandler):
     Handler for CSV file/input.
     """
 
-    def __init__(self, sample_filename: str):
-        super().__init__(sample_filename)
-        self._data_list = self.parse_to_list()
+    def __init__(self, data_list: list, data_raw: str):
+        super().__init__(data_raw)
+        self._data_list = data_list
 
     @property
     def data_list(self):
@@ -23,37 +23,6 @@ class CsvHandler(BaseHandler):
     @data_list.setter
     def data_list(self, data_list: list):
         self._data_list = data_list
-
-    def parse_to_list(self) -> list:
-        """
-        Given a csv file, return a list of row dictionary.
-
-        Example:
-        Input:
-        this,is,a,header
-        data1,data2,data3,data4
-
-        Output:
-        [["this","is","a","header"],["data1","data2","data3","data4"]]
-        """
-        with open(self.sample_filename, "r") as csv_file:
-            data = list(csv.reader(csv_file))
-            # Remove last blank line if exists
-            if data[-1] == [""] or len(data[-1]) == 0:
-                data.pop()
-            return data
-        return []
-
-    def parse_to_raw(self) -> str:
-        """
-        Given a csv file, return its content as a string.
-        """
-        with open(self.sample_filename, "r") as txt_file:
-            raw_data = txt_file.read()
-            # Remove last blank line if exists
-            raw_data = raw_data.rstrip()
-            return raw_data
-        return ""
 
     def format_data_list(self, data: List[list]) -> str:
         """
