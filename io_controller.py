@@ -67,8 +67,8 @@ class IoController:
             self.handlers.append(JsonHandler(data, raw_data))
 
     def init_handlers(self) -> list:
-        self.test_csv()
         self.test_json()
+        self.test_csv()
 
     def get_handlers(self) -> list:
         return self.handlers
