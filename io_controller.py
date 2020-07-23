@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 
+import xmltodict
 import csv, json
 from pwn import *
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
+from handlers.xml_handler import XMLHandler
+from handlers.plaintext_handler import PlaintextHandler
 
 OUTPUT = "bad.txt"
 
@@ -50,7 +53,7 @@ class IoController:
             # Remove last blank line if exists
             raw_data = raw_data.rstrip()
             self.handlers.append(CsvHandler(data, raw_data))
-        
+
     def test_json(self):
         with open(self.input_path, "r") as json_file:
             try:
@@ -66,9 +69,32 @@ class IoController:
             raw_data = raw_data.rstrip()
             self.handlers.append(JsonHandler(data, raw_data))
 
+    def test_xml(self):
+        with open(self.input_path, "r") as xml_file:
+            try:
+                data = xmltodict.parse(xml_file.read())
+            except xmltodict.expat.ExpatError:
+                return
+        with open(self.input_path, 'r') as text_file:
+            """
+            Given a xml file, return its content as a string.
+            """
+            raw_data = text_file.read()
+            # Remove last blank line if exists
+            raw_data = raw_data.rstrip()
+            self.handlers.append(XMLHandler(data, raw_data))
+
+    # def test_plaintext(self):
+    #     with open(self.input_path, "r") as text_file:
+    #         raw_data = text_file.read()
+    #         raw_data = raw_data.rstrip()
+    #         self.handlers.append(PlaintextHandler(raw_data))
+
     def init_handlers(self) -> list:
-        self.test_json()
-        self.test_csv()
+        # self.test_json()
+        # self.test_csv()
+        self.test_xml()
+        # self.test_plaintext()
 
     def get_handlers(self) -> list:
         return self.handlers
@@ -97,3 +123,20 @@ class IoController:
         log.info("Found vulnerability!")
         with open(f"{OUTPUT}", "w") as f:
             f.write(input_str)
+
+    def report_time_elapsed(self, tic: float, toc: float) -> None:
+        log.info(f"Total duration {toc - tic:0.4f} seconds")
+'''
+test={
+    'a' : {
+        'b' : [{
+            '@name': 'Lichenstein',
+            'c' : '1',
+            'd': '2'
+        },
+        {}]
+    }
+}
+xml = xmltodict.unparse(test, pretty=True, full_document=False)
+xml='<a>\n\t<b name="Lichenstein">\n\t\t<c>1</c>\n\t\t<d>2</d>\n\t</b>\n\t<b></b>\n</a>'
+'''
