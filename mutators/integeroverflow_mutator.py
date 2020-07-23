@@ -2,16 +2,18 @@ from mutators.base_mutator import BaseMutator
 
 
 class IntOverflowMutator(BaseMutator):
-    def __init__(self, input_data=""):
-        super().__init__(input_data)
+    '''
+    provides large and negative 32-64bit numbers
+    '''
+    def __init__(self, input_str: str = ""):
+        super().__init__(input_str)
 
-    def mutate(self, step=2, start=1) -> str:
+    def mutate(self, step=1, start=2**31) -> int:
         """
         Return out-of-bound integers
         """
-        # Test negative number
-        while start <= 0xFFFFFFFFF:
-            start = start**2
-            yield start
-            start *= -1
-            yield start
+        value = start
+        for _ in range(step, 64):
+            yield value*-1    # large negative value
+            yield value       # large value
+            value = value**2  # same as logical left shift
