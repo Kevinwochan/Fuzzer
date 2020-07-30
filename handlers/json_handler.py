@@ -18,7 +18,8 @@ class JsonHandler(BaseHandler):
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
-        self.mutators = [buf_overflow, fmt_str, rand_byte]
+        int_overflow = IntegerOverflowMutator()
+        self.mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
 
     @property
     def mutators(self):

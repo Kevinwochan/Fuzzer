@@ -5,6 +5,7 @@ from handlers.base_handler import BaseHandler
 from mutators.bufferoverflow_mutator import BufOverflowMutator
 from mutators.formatstring_mutator import FormatStringMutator
 from mutators.random_byte_mutator import RandomByteMutator
+from mutators.integeroverflow_mutator import IntegerOverflowMutator
 
 
 class CsvHandler(BaseHandler):
@@ -52,7 +53,8 @@ class CsvHandler(BaseHandler):
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
-        mutators = [buf_overflow, fmt_str, rand_byte]
+        int_overflow = IntegerOverflowMutator()
+        mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
 
         # Pass data through mutators
         for mutator in mutators:
