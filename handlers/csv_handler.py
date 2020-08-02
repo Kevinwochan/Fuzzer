@@ -1,11 +1,7 @@
-import csv
 import copy
 from typing import List
 from handlers.base_handler import BaseHandler
-from mutators.bufferoverflow_mutator import BufOverflowMutator
-from mutators.formatstring_mutator import FormatStringMutator
-from mutators.random_byte_mutator import RandomByteMutator
-from mutators.integeroverflow_mutator import IntegerOverflowMutator
+from mutators.super_mutator import SuperMutator
 
 
 class CsvHandler(BaseHandler):
@@ -16,6 +12,7 @@ class CsvHandler(BaseHandler):
     def __init__(self, data_list: list, data_raw: str):
         super().__init__(data_raw)
         self._data_list = data_list
+        self._mutators = SuperMutator()
 
     @property
     def data_list(self) -> List[list]:
@@ -24,6 +21,14 @@ class CsvHandler(BaseHandler):
     @data_list.setter
     def set_data_list(self, data_list: List[list]):
         self._data_list = data_list
+
+    @property
+    def mutators(self):
+        return self._mutators
+
+    @mutators.setter
+    def mutators(self, mutators: list):
+        self._mutators = mutators
 
     def format_data_list(self, data: List[list]) -> str:
         """
@@ -50,24 +55,16 @@ class CsvHandler(BaseHandler):
         """
         Generate mutated strings from the initial input file.
         """
-        buf_overflow = BufOverflowMutator()
-        fmt_str = FormatStringMutator()
-        rand_byte = RandomByteMutator()
-        int_overflow = IntegerOverflowMutator()
-        mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
+        # Initialise mutators with samples
+        self.mutators.set_input_str(self.data_raw)
+        for mutated_str in self.mutators.mutate():
+            yield mutated_str
 
-        # Pass data through mutators
-        for mutator in mutators:
-            # Mutate raw data
-            mutator.set_input_str(self.data_raw)
-            for mutated_str in mutator.mutate():
-                yield mutated_str
-
-            # Mutate each cell
-            for row_n, row in enumerate(self.data_list):
-                new_data = copy.deepcopy(self.data_list)
-                for col_n in range(len(row)):
-                    mutator.set_input_str(row[col_n])
-                    for mutated_str in mutator.mutate():
-                        new_data[row_n][col_n] = mutated_str
-                        yield self.format_data_list(new_data)
+        # Mutate each cell
+        for row_n, row in enumerate(self.data_list):
+            for col, col_n in enumerate(row):
+                self.mutators.set_input_str(row[col_n])
+                for mutated_str in self.mutators.mutate():
+                    self.data_list[row_n][col_n] = mutated_str
+                    yield self.format_data_list(new_data)
+                self.data_list[row_n][col_n] = col  # restore

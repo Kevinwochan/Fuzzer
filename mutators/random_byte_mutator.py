@@ -19,3 +19,4 @@ class RandomByteMutator(BaseMutator):
     def mutate(self) -> str:
         for i in range(100):
             yield self.byte_flip(self.input_str)
+        self.is_empty = True

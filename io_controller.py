@@ -1,14 +1,16 @@
 #!/usr/bin/python3
 
-import xmltodict
-import csv, json
-from pwn import *
+import logging as log
+import csv
+import json
+from pwn import process
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
 from handlers.xml_handler import XMLHandler
 from handlers.plaintext_handler import PlaintextHandler
 
 OUTPUT = "bad.txt"
+
 
 class IoController:
     """

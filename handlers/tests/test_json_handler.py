@@ -21,7 +21,8 @@ class JsonHandlerTests(unittest.TestCase):
 
     def setUp(self):
         self.tmp_file = tempfile.NamedTemporaryFile(mode="w")
-        self.test_data_dict = {"len": 12, "input": "AAAABBBBCCCC", "more_data": ["a", "bb"]}
+        self.test_data_dict = {
+            "len": 12, "input": "AAAABBBBCCCC", "more_data": ["a", "bb"]}
         self.test_data_raw = '{\n    "len": 12,\n    "input": "AAAABBBBCCCC",\n    "more_data": [\n        "a",\n        "bb"\n    ]\n}'
         # Write test data to temp file
         with open(self.tmp_file.name, "w") as tmp_json:
@@ -33,15 +34,7 @@ class JsonHandlerTests(unittest.TestCase):
 
     def tearDown(self):
         self.tmp_file.close()
-"""
-    def test_parse_to_raw(self):
-        """
-        Test that parse_to_raw() should return the correct format
-        """
 
-        formatted = self.handler.data_raw
-        self.assertEqual(formatted, self.test_data_raw)
-"""
     def test_mutate_elem(self):
         """
         Tests that a primitive is correctly mutated
@@ -53,7 +46,11 @@ class JsonHandlerTests(unittest.TestCase):
         Tests that a JSON is mutated in every field
         """
         mutated_set = (self.handler.mutate_structure(self.test_data_dict))
-        self.assertIn({"len": "A", "input": "AAAABBBBCCCC", "more_data": ["a", "bb"]}, mutated_set)
-        self.assertIn({"len": 12, "input": "AAAABBBBCCCC", "more_data": ["a", "bb"]}, mutated_set)
-        self.assertIn({"len": 12, "input": "AAAABBBBCCCC", "more_data": ["A", "bb"]}, mutated_set)
-        self.assertIn({"len": 12, "input": "AAAABBBBCCCC", "more_data": ["a", "A"]}, mutated_set)
+        self.assertIn({"len": "A", "input": "AAAABBBBCCCC",
+                       "more_data": ["a", "bb"]}, mutated_set)
+        self.assertIn({"len": 12, "input": "AAAABBBBCCCC",
+                       "more_data": ["a", "bb"]}, mutated_set)
+        self.assertIn({"len": 12, "input": "AAAABBBBCCCC",
+                       "more_data": ["A", "bb"]}, mutated_set)
+        self.assertIn({"len": 12, "input": "AAAABBBBCCCC",
+                       "more_data": ["a", "A"]}, mutated_set)

@@ -42,7 +42,7 @@ class CsvHandlerTests(unittest.TestCase):
 
         formatted = self.handler.data_list
         self.assertEqual(formatted, self.test_data)
-"""
+
     def test_parse_to_raw(self):
         """
         Test that parse_to_raw() should return the correct format
@@ -52,7 +52,7 @@ class CsvHandlerTests(unittest.TestCase):
 
         formatted = self.handler.data_raw
         self.assertEqual(formatted, self.test_data_raw)
-"""
+
     def test_format_data_list(self):
         """
         Test that format_data_list() should return the correct original format

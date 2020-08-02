@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 #cython: language_level=3
 
-import os
 import sys
 
-from pwn import process, log
 from io_controller import IoController
 
 if __name__ == "__main__":

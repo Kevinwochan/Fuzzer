@@ -74,3 +74,4 @@ class BufOverflowMutator(BaseMutator):
                     (delim + random.choice(string.ascii_letters)) * i
                 )
                 yield delim_str
+        self.is_empty = True

@@ -17,3 +17,4 @@ class IntOverflowMutator(BaseMutator):
             yield value*-1    # large negative value
             yield value       # large value
             value = value**2  # same as logical left shift
+        self.is_empty = True

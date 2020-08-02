@@ -25,3 +25,4 @@ class FormatStringMutator(BaseMutator):
         payload = b"\x78\x45\x34\x12%150x%12$hhn"
         classic_n = self.input_str + payload.decode("utf-8")
         yield classic_n
+        self.is_empty = True
