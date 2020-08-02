@@ -3,6 +3,7 @@
 import logging as log
 import csv
 import json
+import xmltodict
 from pwn import process
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
