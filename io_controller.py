@@ -134,12 +134,10 @@ class IoController:
         Initialize handler for plaintext files
         """
         with open(self.input_path, "r") as text_file:
+            data = [data.strip() for data in text_file]
             raw_data = text_file.read()
-            # Remove last blank line if exists
             raw_data = raw_data.rstrip()
-            # Seeks to the start
-            text_file.seek(0)
-            self.handlers.append(PlaintextHandler(raw_data))
+            self.handlers.append(PlaintextHandler(data, raw_data))
 
     def init_handlers(self) -> None:
         """
