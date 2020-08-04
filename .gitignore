@@ -132,3 +132,5 @@ dmypy.json
 .pyre/
 
 output/
+bad.txt
+core

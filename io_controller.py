@@ -3,6 +3,7 @@
 import logging as log
 import csv
 import json
+import xmltodict
 from pwn import process
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
@@ -27,7 +28,28 @@ class IoController:
         self.handlers = []
         self.init_handlers()
 
-    def test_csv(self):
+    def is_csv(self) -> bool:
+        """
+        Checks whether a file is a valid CSV file (comma-separated)
+        """
+        with open(self.input_path, "r") as csv_file:
+            try:
+                dialect = csv.Sniffer().sniff(csv_file.read(1024))
+                # Perform various checks on the dialect (e.g., lineseparator,
+                # delimiter) to make sure it's sane
+
+                # Don't forget to reset the read position back to the start of
+                # the file before reading any entries.
+                csv_file.seek(0)
+                return dialect.delimiter == ","
+            except csv.Error:
+                # File appears not to be in CSV format;
+                return False
+
+    def init_csv_handler(self) -> None:
+        """
+        Initialize handler for CSV files
+        """
         with open(self.input_path, "r") as csv_file:
             try:
                 """
@@ -45,58 +67,92 @@ class IoController:
                 # Remove last blank line if exists
                 if data[-1] == [""] or len(data[-1]) == 0:
                     data.pop()
+                # Seeks to the start
+                csv_file.seek(0)
+                # Read all raw data
+                raw_data = csv_file.read()
+                # Remove last blank line if exists
+                raw_data = raw_data.rstrip()
+                self.handlers.append(CsvHandler(data, raw_data))
             except csv.Error:
-                return
-        with open(self.input_path, "r") as text_file:
-            """
-            Given a csv file, return its content as a string.
-            """
-            raw_data = text_file.read()
-            # Remove last blank line if exists
-            raw_data = raw_data.rstrip()
-            self.handlers.append(CsvHandler(data, raw_data))
+                return None
 
-    def test_json(self):
+    def is_json(self) -> bool:
+        """
+        Checks whether a file is a valid JSON file
+        """
         with open(self.input_path, "r") as json_file:
             try:
-                data = json.load(json_file)
+                json.load(json_file)
+                # Seeks to the start
+                json_file.seek(0)
+                return True
             except json.decoder.JSONDecodeError:
-                return
-        with open(self.input_path, 'r') as text_file:
-            """
-            Given a json file, return its content as a string.
-            """
-            raw_data = text_file.read()
+                return False
+
+    def init_json_handler(self) -> None:
+        """
+        Initialize handler for JSON files
+        """
+        with open(self.input_path, "r") as json_file:
+            data = json.load(json_file)
+            # Seeks to the start
+            json_file.seek(0)
+            raw_data = json_file.read()
             # Remove last blank line if exists
             raw_data = raw_data.rstrip()
             self.handlers.append(JsonHandler(data, raw_data))
 
-    def test_xml(self):
+    def is_xml(self) -> bool:
+        """
+        Checks whether a file is a valid XML file
+        """
         with open(self.input_path, "r") as xml_file:
             try:
-                data = xmltodict.parse(xml_file.read())
+                xmltodict.parse(xml_file.read())
+                # Seeks to the start
+                xml_file.seek(0)
+                return True
             except xmltodict.expat.ExpatError:
-                return
-        with open(self.input_path, 'r') as text_file:
-            """
-            Given a xml file, return its content as a string.
-            """
-            raw_data = text_file.read()
+                return False
+
+    def init_xml_handler(self) -> None:
+        """
+        Initialize handler for XML files
+        """
+        with open(self.input_path, 'r') as xml_file:
+            data = xmltodict.parse(xml_file.read())
+            # Seeks to the start
+            xml_file.seek(0)
+            raw_data = xml_file.read()
             # Remove last blank line if exists
             raw_data = raw_data.rstrip()
             self.handlers.append(XMLHandler(data, raw_data))
 
-    # def test_plaintext(self):
-    #     with open(self.input_path, "r") as text_file:
-    #         raw_data = text_file.read()
-    #         raw_data = raw_data.rstrip()
-    #         self.handlers.append(PlaintextHandler(raw_data))
+    def init_plaintext_handler(self):
+        """
+        Initialize handler for plaintext files
+        """
+        with open(self.input_path, "r") as text_file:
+            raw_data = text_file.read()
+            # Remove last blank line if exists
+            raw_data = raw_data.rstrip()
+            # Seeks to the start
+            text_file.seek(0)
+            self.handlers.append(PlaintextHandler(raw_data))
 
-    def init_handlers(self) -> list:
-        # self.test_json()
-        # self.test_csv()
-        self.test_xml()
-        # self.test_plaintext()
+    def init_handlers(self) -> None:
+        """
+        Detects input file type and initialize correct handler
+        """
+        if self.is_csv():
+            self.init_csv_handler()
+        elif self.is_json():
+            self.init_json_handler()
+        elif self.is_xml():
+            self.init_xml_handler()
+        else:
+            self.init_plaintext_handler()
 
     def get_handlers(self) -> list:
         return self.handlers
@@ -104,14 +160,21 @@ class IoController:
     def run(self, input_str: str = "") -> bool:
         p = process(self.binary_path)
         try:
+            log.warn(f"Trying {input_str}")
             p.send(input_str)
-        except:
+        except Exception as e:
+            log.error(e)
             return False
         p.proc.stdin.close()
 
-        log.warn(f"Trying {input_str}")
+        # Prevents hang by overwriting the default
+        # timeout in pwntools.tube
+        p.settimeout(0.1)
 
-        if p.poll(block=True) != 0:
+        status_code = p.poll(block=True)
+
+        # Ignore hangs/timeouts (None) and SIGABRT (-6)
+        if status_code and status_code < 0 and status_code != -6:
             p.close()
             return True
         else:
@@ -128,17 +191,3 @@ class IoController:
 
     def report_time_elapsed(self, tic: float, toc: float) -> None:
         log.info(f"Total duration {toc - tic:0.4f} seconds")
-'''
-test={
-    'a' : {
-        'b' : [{
-            '@name': 'Lichenstein',
-            'c' : '1',
-            'd': '2'
-        },
-        {}]
-    }
-}
-xml = xmltodict.unparse(test, pretty=True, full_document=False)
-xml='<a>\n\t<b name="Lichenstein">\n\t\t<c>1</c>\n\t\t<d>2</d>\n\t</b>\n\t<b></b>\n</a>'
-'''

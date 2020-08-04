@@ -62,9 +62,9 @@ class CsvHandler(BaseHandler):
 
         # Mutate each cell
         for row_n, row in enumerate(self.data_list):
-            for col, col_n in enumerate(row):
+            for col_n, col in enumerate(row):
                 self.mutators.set_input_str(row[col_n])
                 for mutated_str in self.mutators.mutate():
-                    self.data_list[row_n][col_n] = mutated_str
-                    yield self.format_data_list(new_data)
-                self.data_list[row_n][col_n] = col  # restore
+                    data_list_copy = copy.deepcopy(self.data_list)
+                    data_list_copy[row_n][col_n] = mutated_str
+                    yield self.format_data_list(data_list_copy)

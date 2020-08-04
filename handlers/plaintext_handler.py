@@ -1,5 +1,3 @@
-import copy
-from typing import List
 from handlers.base_handler import BaseHandler
 from mutators.bufferoverflow_mutator import BufOverflowMutator
 from mutators.formatstring_mutator import FormatStringMutator
@@ -11,38 +9,8 @@ class PlaintextHandler(BaseHandler):
     Handler for Plaintext file/input.
     """
 
-    def __init__(self, data_list: list, data_raw: str):
+    def __init__(self, data_raw: str):
         super().__init__(data_raw)
-        self._data_list = data_list
-
-    @property
-    def data_list(self) -> List[list]:
-        return self._data_list
-
-    @data_list.setter
-    def set_data_list(self, data_list: List[list]):
-        self._data_list = data_list
-
-    def format_data_list(self, data: List[list]) -> str:
-        """
-        Given a list of csv rows, return a complete csv string.
-
-        Example:
-        Input:
-        [["this","is","a","header"],["data1","data2","data3","data4"]]
-
-        Output:
-        this,is,a,header
-        data1,data2,data3,data4
-        """
-        output = ""
-        rows = []
-        for cols in data:
-            if len(cols) > 0:
-                csv_cols = ",".join(cols)
-                rows.append(csv_cols)
-        output = "\n".join(rows)
-        return output
 
     def generate_input(self) -> str:
         """
@@ -59,12 +27,3 @@ class PlaintextHandler(BaseHandler):
             mutator.set_input_str(self.data_raw)
             for mutated_str in mutator.mutate():
                 yield mutated_str
-
-            # Mutate each cell
-            for row_n, row in enumerate(self.data_list):
-                new_data = copy.deepcopy(self.data_list)
-                for col_n in range(len(row)):
-                    mutator.set_input_str(row[col_n])
-                    for mutated_str in mutator.mutate():
-                        new_data[row_n][col_n] = mutated_str
-                        yield self.format_data_list(new_data)
