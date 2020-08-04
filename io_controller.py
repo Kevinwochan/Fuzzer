@@ -3,7 +3,8 @@
 import logging as log
 import csv
 import json
-from pwn import process
+import xmltodict
+from pwn import context, process
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
 from handlers.xml_handler import XMLHandler
@@ -19,9 +20,11 @@ class IoController:
     io.run("input_string")
     """
 
-    def __init__(self, binary_path: str = "", input_path: str = ""):
+    def __init__(self, binary_path: str = "", input_path: str = "", verbose: bool = False):
         self.binary_path = binary_path
         self.input_path = input_path
+        self.input_str = ""
+        self.verbose = verbose
         log.info(f"Binary: {binary_path}")
         log.info(f"Input: {input_path}")
         self.handlers = []
@@ -102,21 +105,24 @@ class IoController:
         return self.handlers
 
     def run(self, input_str: str = "") -> bool:
-        p = process(self.binary_path)
+        p = context.quiet(process(self.binary_path))
         try:
             p.send(input_str)
         except:
-            return False
+            return
         p.proc.stdin.close()
 
-        log.warn(f"Trying {input_str}")
+        if (self.verbose):
+            log.warn(f"Trying {input_str}")
 
         if p.poll(block=True) != 0:
             p.close()
-            return True
+            self.report_vuln(input_str)
+            self.input_str = input_str
+            return
         else:
             p.close()
-            return False
+            return
 
     def warn_unhandled_ftype(self) -> None:
         log.warn(f"{self.input_path} unsupported")
