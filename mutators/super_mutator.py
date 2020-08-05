@@ -23,7 +23,7 @@ class SuperMutator():
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
         int_overflow = IntOverflowMutator()
-        self.mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
+        self.mutators = [fmt_str, rand_byte, int_overflow, buf_overflow ]
 
     def is_empty(self) -> bool:
         for mutator in self.mutators:
