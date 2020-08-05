@@ -46,7 +46,7 @@ class CsvHandler(BaseHandler):
         rows = []
         for cols in data:
             if len(cols) > 0:
-                csv_cols = ",".join(cols)
+                csv_cols = ",".join(str(cols))
                 rows.append(csv_cols)
         output = "\n".join(rows)
         return output
