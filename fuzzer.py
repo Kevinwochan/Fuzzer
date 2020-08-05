@@ -39,54 +39,71 @@ def task(gen):
 if __name__ == "__main__":
     BINARY = sys.argv[1]
     FILENAME = sys.argv[2]
+    MULTI = sys.argv[3]
     tic = timeit.default_timer()
 
     ioController = IoController(BINARY, FILENAME)
     handlers = ioController.get_handlers()
 
-    isDone = mp.Value('i', 0)
-
-    '''print("normal")
-    tac = timeit.default_timer()
-    for handler in handlers:
-        gen = handler.generate_input()
-        task(gen)'''
-    '''
-    print("multi-thread")
-    tac = timeit.default_timer()
-    for handler in handlers:
-        gen = handler.generate_input()
-        pool = mpp.ThreadPool(4)
-        for _ in range(10):
-            pool.apply_async(task, (gen,))
-        pool.close()
-        pool.join()
-    ioController = IoController(BINARY, FILENAME)
-    handlers = ioController.get_handlers()
-    '''
-    print("multi-process")
-    tac = timeit.default_timer()
-    # fuzzer.py files/csv2 files/csv2.txt
     csv_handler = handlers[0]
     gen = csv_handler.generate_input()
-    
-    '''
-    4 independent process consuming from the same generator
-    '''
-    #for mutated_data in gen:
-    #    print(mutated_data)
-    start = timeit.default_timer()
-    with mp.Pool(processes=4) as pool:
-        while True:
-            new_task = next(gen)
-            if new_task is not None:
-                result = pool.apply_async(ioController.run, (new_task,))
+    if MULTI == "No":
+        print("normal")
+        start_single = timeit.default_timer()
+        for new_task in gen:
+            result = ioController.run(new_task)
+            if result:
+                break
+        print(f'time taken: {timeit.default_timer() - start_single}')
+        #tac = timeit.default_timer()
+        # fuzzer.py files/csv2 files/csv2.txt
+        '''
+        4 independent process consuming from the same generator
+        '''
+    elif MULTI == "Yes":
+        print("multi-process list")
+        '''
+        Processes work best when we divide the total set of tasks
+        between each process and then let them run with a subset, this way we avoid
+        the overhead of continually stopping and starting processes
+
+        This takes more memory space tho, because we need to evaluate the entire set of tasks
+        before we distribute them
+        '''
+        '''
+        Another optimisation 
+        '''
+        start_multi = timeit.default_timer()
+        inputs = list(gen) # evaluate generator (trade memory for runtime performance)
+        time_stamp = timeit.default_timer() - start_multi
+        NUM_PROCS = 2
+        with mp.Pool(processes=NUM_PROCS) as pool:
+            for i in range(0, len(inputs), int(len(inputs)/NUM_PROCS)):
+                result = pool.apply_async(ioController.run_list, (inputs[i:i+int(len(inputs)/NUM_PROCS)],))
                 if result.get():
                     pool.terminate()
-    print(f'time taken: {timeit.default_timer() - start}')
+                    break
+        print(f'time taken: {timeit.default_timer() - start_multi}, list(gen) took {time_stamp}')
+    elif MULTI == "Noyes":
+        print("multi-process")
+        lock = mp.Lock()
+        start_multi = timeit.default_timer()
+        with mp.Pool(processes=3) as pool:
+            while True:
+                lock.acquire()
+                new_task = next(gen)
+                lock.release()
+                if new_task is not None:
+                    result = pool.apply_async(ioController.run, (new_task,))
+                    if result.get():
+                        pool.terminate()
+                        break
+        print(f'time taken: {timeit.default_timer() - start_multi}')
+    else:
+        print('uwu bad code, sad man')
 
 
-'''
+''' 
 def use_multiprocessing_with_queue2():
     queue = multiprocessing.JoinableQueue()
     num_consumers = multiprocessing.cpu_count() * 2

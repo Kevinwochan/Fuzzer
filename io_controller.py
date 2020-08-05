@@ -4,9 +4,12 @@ import csv, json
 from pwn import *
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
+import timeit
 
 context.log_level = "critical"
 OUTPUT = "bad.txt"
+task_list_timer = 0
+task_timer = 0
 
 class IoController:
     """
@@ -73,6 +76,12 @@ class IoController:
 
     def get_handlers(self) -> list:
         return self.handlers
+
+    def run_list(self, input_list) -> bool:
+        for payload in input_list:
+            if self.run(payload):
+                return True
+        return False
 
     def run(self, input_str: str = "") -> bool:
         p = process(self.binary_path)
