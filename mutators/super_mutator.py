@@ -15,31 +15,35 @@ class SuperMutator():
     """
 
     def __init__(self, input_str: str = ""):
+        self.init_mutators()
+        self.set_input_str(input_str)
+
+    def init_mutators(self) -> None:
         buf_overflow = BufOverflowMutator()
         fmt_str = FormatStringMutator()
         rand_byte = RandomByteMutator()
         int_overflow = IntOverflowMutator()
         self.mutators = [buf_overflow, fmt_str, rand_byte, int_overflow]
-        self.set_input_str(input_str)
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         for mutator in self.mutators:
             if not mutator.is_empty:
                 return False
         return True
 
-    def mutate(self):
+    def mutate(self) -> str:
         """
-        A Generator that feeds on a round robin of mutators
+        Runs mutate() on all mutators.
         """
-        generators = [mutator.mutate() for mutator in self.mutators]
-        while not self.is_empty():
-            for generator in generators:
-                mutated_data = next(generator, None)
-                if mutated_data is None:
-                    continue
-                yield mutated_data
+        for mutator in self.mutators:
+            for mutated_str in mutator.mutate():
+                yield mutated_str
 
     def set_input_str(self, input_str: str) -> None:
+        """
+        Sets input string for each mutator.
+        This function also resets all mutator generators.
+        """
+        self.init_mutators()
         for mutator in self.mutators:
-            mutator.input_str = input_str
+            mutator.set_input_str(input_str)

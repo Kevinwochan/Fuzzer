@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#cython: language_level=3
+# cython: language_level=3
 
 import sys
 
