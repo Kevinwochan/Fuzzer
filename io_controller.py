@@ -5,6 +5,7 @@ from pwn import *
 from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
 
+context.log_level = "critical"
 OUTPUT = "bad.txt"
 
 class IoController:
@@ -81,10 +82,12 @@ class IoController:
             return False
         p.proc.stdin.close()
 
-        log.warn(f"Trying {input_str}")
+        # log.warn(f"Trying {input_str}")
 
         if p.poll(block=True) != 0:
             p.close()
+            self.report_vuln(input_str)
+            print(input_str)
             return True
         else:
             p.close()
