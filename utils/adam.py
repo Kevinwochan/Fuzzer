@@ -59,9 +59,9 @@ for filename in sorted(os.listdir('files')):
 
     print(f'=== Testing {filename} ===')
     try:
-        cmd = f'./fuzzer.py files/{filename} files/{filename}.txt critical > /dev/null'
+        cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt Yes > /dev/null'
         if args.debug:
-            cmd = f'./fuzzer.py files/{filename} files/{filename}.txt'
+            cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt'
         start = time.time()
         p = subprocess.run(cmd, timeout=int(args.timeout), shell=True)
         print(f'time taken: {time.time() - start}s')

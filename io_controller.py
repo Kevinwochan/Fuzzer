@@ -9,6 +9,7 @@ from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
 from handlers.xml_handler import XMLHandler
 from handlers.plaintext_handler import PlaintextHandler
+import subprocess
 
 OUTPUT = "bad.txt"
 
@@ -156,6 +157,21 @@ class IoController:
         return self.handlers
 
     def run(self, input_str: str = "") -> bool:
+        try:
+            output = subprocess.check_output(
+                [self.binary_path],
+                input=input_str.encode(),
+            )
+        except subprocess.CalledProcessError as e:
+            if (e.returncode == -11):
+                print(e)
+                self.report_vuln(input_str)
+                return True
+            else:
+                print(e.returncode)
+        return False
+
+    def run2(self, input_str: str = "") -> bool:
         p = process(self.binary_path)
         try:
             log.warn(f"Trying {input_str}")
