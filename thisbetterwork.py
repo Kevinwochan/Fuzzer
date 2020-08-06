@@ -58,7 +58,7 @@ if __name__ == '__main__':
     gen = ioc.handlers[0].generate_input()
     print(type(gen))
     task(gen, ioc)
-    toc = timeit.default_timer()'''
+    '''
     '''
     print("multi-threads")
     gen = thread_safe_generator(bm.mutate())
@@ -67,39 +67,64 @@ if __name__ == '__main__':
         pool.apply_async(task, (gen,))
     pool.close()
     pool.join()
-    ''''''
-    print("fuzzer-multi-pls-bro")
-    ioc = IoController('files/json1', 'files/json1.txt')
-    gen = ioc.handlers[0].generate_input()
-    inputs = list(gen)
-    NUM_PROCS = 4
-    with mp.Pool(processes=NUM_PROCS) as pool:
-        for i in range(0, len(inputs), int(len(inputs)/NUM_PROCS)):
-            result = pool.apply_async(ioc.run_list, (inputs[i:i+int(len(inputs)/NUM_PROCS)],))
-            if result.get():
-                pool.terminate()
-                break
     '''
-    tac = timeit.default_timer()
+    toc = timeit.default_timer()
 
+    BASE_STR = 'files/json2'
+    for i in range(1, 4):
+        shutil.copy(f'{BASE_STR}', f'{BASE_STR}_{i}')
+        shutil.copy(f'{BASE_STR}.txt', f'{BASE_STR}_{i}.txt')
     print("multi-process")
-    ioc = IoController('files/json1', 'files/json1.txt')
-    gen = ioc.handlers[0].generate_input()
+    ioc1 = IoController('files/json2_1', 'files/json2_1.txt')
+    ioc2 = IoController('files/json2_2', 'files/json2_2.txt')
+    ioc3 = IoController('files/json2_3', 'files/json2_3.txt')
+    ioc4 = IoController('files/json2_4', 'files/json2_4.txt')
+    gen = ioc1.handlers[0].generate_input()
     inputs = list(gen)
     #pool = mp.Pool(4)
     processes = []
     NUM_PROCS = 4
+    print("fuzzer-multi-pls-bro")
+    gen = ioc1.handlers[0].generate_input()
+    inputs = list(gen)
+    NUM_PROCS = 4
+    ioc = [ioc1,ioc2,ioc3,ioc4]
+    with mp.Pool(processes=NUM_PROCS) as pool:
+        for i in range(0, len(inputs), int(len(inputs)/NUM_PROCS)):
+            result = pool.apply_async(ioc[i].run_list, (inputs[i:i+int(len(inputs)/NUM_PROCS)],))
+            if result.get():
+                pool.terminate()
+                break
+    tac = timeit.default_timer()
+    '''
+    seg_size = int(len(inputs)/NUM_PROCS)
+    spl_inputs = inputs[:seg_size]
+    p = mp.Process(target=task, args=(spl_inputs,ioc1, ))
+    processes.append(p)
+    p.start()
+   
+    spl_inputs = inputs[seg_size:2*seg_size]
+    p = mp.Process(target=task, args=(spl_inputs,ioc2, ))
+    processes.append(p)
+    p.start()
 
-    for i in range(0, len(inputs), int(len(inputs)/NUM_PROCS)):
-        spl_inputs = inputs[i:i+int(len(inputs)/NUM_PROCS)]
-        p = mp.Process(target=task, args=(spl_inputs,ioc, ))
-        processes.append(p)
-        p.start()
+
+    spl_inputs = inputs[2*seg_size:3*seg_size]
+    p = mp.Process(target=task, args=(spl_inputs,ioc3, ))
+    processes.append(p)
+    p.start()
+
+    spl_inputs = inputs[3*seg_size:]
+    p = mp.Process(target=task, args=(spl_inputs,ioc4, ))
+    processes.append(p)
+    p.start()
+
     for process in processes:
         process.join()
         #pool.apply_async(task, (gen,))
     tuc = timeit.default_timer()
-
+'''
+    print(f'plsbro {tac-toc}')
     '''print(f'single process: {toc-tic}')
-    print(f'plsbro {tac-toc}')'''
     print(f'multiprocess: {tuc-tac}')
+    '''
