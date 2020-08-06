@@ -22,4 +22,4 @@ class IntOverflowMutator(BaseMutator):
         #     value = value**2  # same as logical left shift
         # self.is_empty = True
 
-        yield start
+        yield str(start)
