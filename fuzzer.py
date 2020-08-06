@@ -24,15 +24,16 @@ def thread_safe(f):
         return thread_safe_generator(f(*a, **kw))
     return g
 
-def task(gen):
-    for _ in range(1000000):
+def task(gen, ioController):
+    tac = timeit.default_timer()
+    for val in gen:
         global isDone
         if isDone:
             break
-        val = next(gen)
         if ioController.run(val):
             toc = timeit.default_timer()
-            print(f'{toc-tac}')  
+            print(f'Process: {toc-tac}')  
+            print(f'Total: {toc-twac}')  
             isDone = True
             break
 
@@ -50,16 +51,41 @@ if __name__ == "__main__":
     if MULTI == "No":
         print("normal")
         start_single = timeit.default_timer()
+        for handler in handlers:
+            for input_str in handler.generate_input():
+                if ioController.run(input_str):
+                    ioController.report_vuln(input_str)
+                    print(f'time taken: {timeit.default_timer() - start_single}')
+                    exit()
+        '''
         for new_task in gen:
             result = ioController.run(new_task)
             if result:
                 break
-        print(f'time taken: {timeit.default_timer() - start_single}')
+        '''
         #tac = timeit.default_timer()
         # fuzzer.py files/csv2 files/csv2.txt
         '''
         4 independent process consuming from the same generator
         '''
+    elif MULTI == "check_output":
+        print("multi-process checkoutput")
+        twac = timeit.default_timer()
+        for handler in handlers:
+            gen = handler.generate_input()
+            alsdf = timeit.default_timer()
+            inputs = list(gen)
+            print(f"{timeit.default_timer() - alsdf} sdf")
+            processes = []
+            NUM_PROCS = mp.cpu_count()
+            for i in range(0, len(inputs), int(len(inputs)/NUM_PROCS)):
+                spl_inputs = inputs[i:i+int(len(inputs)/NUM_PROCS)]
+                p = mp.Process(target=task, args=(spl_inputs, ioController, ))
+                processes.append(p)
+                p.start()
+            for process in processes:
+                process.join()
+
     elif MULTI == "Yes":
         print("multi-process list")
         '''

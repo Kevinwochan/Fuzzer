@@ -84,23 +84,19 @@ class IoController:
         return False
 
     def run(self, input_str: str = "") -> bool:
-        p = process(self.binary_path)
         try:
-            p.send(input_str)
-        except:
-            return False
-        p.proc.stdin.close()
-
-        # log.warn(f"Trying {input_str}")
-
-        if p.poll(block=True) != 0:
-            p.close()
-            self.report_vuln(input_str)
-            print(input_str)
-            return True
-        else:
-            p.close()
-            return False
+            output = subprocess.check_output(
+                [self.binary_path],
+                input=input_str.encode(),
+            )
+        except subprocess.CalledProcessError as e:
+            if (e.returncode == -11):
+                print(e)
+                self.report_vuln(input_str)
+                return True
+            else:
+                print(e.returncode)
+        return False
 
     def warn_unhandled_ftype(self) -> None:
         log.warn(f"{self.input_path} unsupported")
