@@ -64,16 +64,18 @@ for filename in sorted(os.listdir('files')):
             cmd = f'./fuzzer.py files/{filename} files/{filename}.txt'
         start = time.time()
         p = subprocess.run(cmd, timeout=int(args.timeout), shell=True)
-        print(f'time taken: {time.time() - start}s')
+        total_time = time.time() - start
+        print(f'time taken: {total_time}s')
     except:
         print('FAILED: timed out')
-        test_summary.append([WARNING + filename, 'FAILED: timed out'])
+        test_summary.append(
+            [WARNING + filename, 'FAILED: timed out', total_time])
         continue
 
     if not os.path.exists('bad.txt'):
         print('FAILED: vulnerability not found')
         test_summary.append(
-            [FAIL + filename, 'FAILED: vulnerability not found'])
+            [FAIL + filename, 'FAILED: vulnerability not found', total_time])
         continue
     shutil.copy('bad.txt', f'solved/{filename}.txt')
     cmd = f'cat bad.txt | files/{filename} > /dev/null'
@@ -82,12 +84,13 @@ for filename in sorted(os.listdir('files')):
     p = subprocess.run(cmd, timeout=5, shell=True)
     if p.returncode == 0:
         print('FAILED: could not replicate crash')
-        test_summary.append(
-            [WARNING + filename, 'FAILED: could not replicate crash'])
+        test_summary.append([
+            WARNING + filename, 'FAILED: could not replicate crash', total_time
+        ])
         continue
     print('PASSED!')
-    test_summary.append([OKGREEN + filename, 'PASSED!'])
+    test_summary.append([OKGREEN + filename, 'PASSED!', total_time])
 
-headers = ['Binary', 'Status']
+headers = ['Binary', 'Status', 'Time']
 
 print(tabulate(test_summary, headers=headers))
