@@ -12,9 +12,14 @@ class IntOverflowMutator(BaseMutator):
         """
         Return out-of-bound integers
         """
-        value = start
-        for _ in range(step, 64):
-            yield value*-1    # large negative value
-            yield value       # large value
-            value = value**2  # same as logical left shift
-        self.is_empty = True
+        # TODO: currently this breaks the program
+        # 'int' object has no attribute 'encode'
+
+        # value = start
+        # for _ in range(step, 64):
+        #     yield value*-1    # large negative value
+        #     yield value       # large value
+        #     value = value**2  # same as logical left shift
+        # self.is_empty = True
+
+        yield str(start)

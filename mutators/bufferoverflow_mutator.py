@@ -45,33 +45,33 @@ class BufOverflowMutator(BaseMutator):
             yield newlines
 
         # Append random delimiters and characters
-        delimiters = [
-            "'",
-            '"',
-            ",",
-            ".",
-            ";",
-            "/",
-            "\\",
-            "{",
-            "}",
-            "[",
-            "]",
-            "-",
-            "=",
-            "+",
-            "&",
-            "?",
-            "#",
-            "(",
-            ")",
-            "@",
-            "!",
-        ]
-        for delim in delimiters:
-            for i in range(0, max_length, step):
-                delim_str = self.input_str + (
-                    (delim + random.choice(string.ascii_letters)) * i
-                )
-                yield delim_str
-        self.is_empty = True
+        # delimiters = [
+        #     "'",
+        #     '"',
+        #     ",",
+        #     ".",
+        #     ";",
+        #     "/",
+        #     "\\",
+        #     "{",
+        #     "}",
+        #     "[",
+        #     "]",
+        #     "-",
+        #     "=",
+        #     "+",
+        #     "&",
+        #     "?",
+        #     "#",
+        #     "(",
+        #     ")",
+        #     "@",
+        #     "!",
+        # ]
+        # for delim in delimiters:
+        #     for i in range(0, max_length, step):
+        #         delim_str = self.input_str + (
+        #             (delim + random.choice(string.ascii_letters)) * i
+        #         )
+        #         yield delim_str
+        # self.is_empty = True

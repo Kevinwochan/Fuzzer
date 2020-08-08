@@ -1,88 +1,78 @@
+"""
+For mutating a XML sample file
+"""
 import xmltodict
 import copy
-from typing import List
-from handlers.base_handler import BaseHandler
-from mutators.base_mutator import BaseMutator
-from mutators.bufferoverflow_mutator import BufOverflowMutator
-from mutators.formatstring_mutator import FormatStringMutator
-from mutators.random_byte_mutator import RandomByteMutator
-from mutators.integeroverflow_mutator import IntOverflowMutator
+from pwn import cyclic
+from handlers.dict_handler import DictionaryHandler
 
 
-class XMLHandler(BaseHandler):
-    '''
-    Hander for JSON file/input
-    '''
-    def __init__(self, data: dict, raw_data: str):
-        super().__init__(raw_data)
-        self._data_dict = data
-        buf_overflow = BufOverflowMutator()
-        fmt_str = FormatStringMutator()
-        rand_byte = RandomByteMutator()
-        self.mutators = [buf_overflow, fmt_str, rand_byte]
+class XMLHandler(DictionaryHandler):
+    """
+    Hander for XML file/input
+    """
 
-    @property
-    def mutators(self):
-        return self._mutators
+    def __init__(self, data: dict, data_raw: str):
+        super().__init__(data, data_raw)
 
-    @mutators.setter
-    def mutators(self, mutators: list):
-        self._mutators = mutators
-
-    def mutate_structure(self, data):
-        if isinstance(data, dict):
-            for item in self.mutate_dict(data):
-                yield item
-        elif isinstance(data, list):
-            for item in self.mutate_list(data):
-                yield item
-        else:
-            for item in self.mutate_elem(data):
-                yield item
-
-    def mutate_dict(self, data):
-        new_data = copy.deepcopy(data)
+    def mutate_dict(self, data: dict) -> dict:
+        """
+        Mutates each value in dictionary recursively.
+        Mutates each key in dictionary recursively,
+        except for '#text' key as it is a xmltodict-specific identifer.
+        """
         for (k, v) in data.items():
+            # Mutate all values recursively
             for item in self.mutate_structure(v):
-                data[k] = item
-                yield data
-        for (k, v) in new_data.items():
-            if (k[0] == '@'):
+                dict_copy = copy.deepcopy(data)
+                dict_copy[k] = item
+                yield dict_copy
+            # Mutate keys
+            if k[0] in ["@", "#", "!"] and self.is_valid_dict_key(k):
+                token = k[0]
                 for item in self.mutate_structure(k[1:]):
-                    new_data_2 = copy.deepcopy(new_data)
-                    new_data_2[f"{k[0]}{item}"] = new_data[k]
-                    new_data_2.pop(k)
-                    yield new_data_2
+                    dict_copy = copy.deepcopy(data)
+                    # Replace old key with new key
+                    dict_copy[f"{token}{item}"] = v
+                    dict_copy.pop(k)
+                    yield dict_copy
 
-    def mutate_list(self, data):
-        for i, elem in enumerate(data):
-            for item in self.mutate_structure(elem):
-                data[i] = item
-                yield data
-
-    """
-    <asdadasdasdasd ajsdhfajklsdfhasdfkja="https://">link</asdadasdasdasd>
-
-
-    "head": {
-    "@ajsdhfajklsdfhasdfkja": "https://",
-    "#text": "link" 
-    }
-    """
-    def mutate_elem(self, data) -> str:
-        for mutator in self.mutators:
-            mutator.set_input_str(str(data))
-            for mutated_str in mutator.mutate():
-                yield mutated_str
-        yield data
-
-    def generate_input(self) -> str:
+    def generate_duplicate_key_dict(
+        self,
+        data: dict,
+        n_duplicates: int = 256
+    ) -> dict:
         """
-        Generate mutated strings from the initial input file.
+        Generates dictionary with duplicated keys.
+        Ignore xmltodict-specific keys (i.e. #text).
         """
-        for mutator in self.mutators:
-            mutator.set_input_str(self.data_raw)
-            for mutated_str in mutator.mutate():
-                yield mutated_str
-        for mutated_data in self.mutate_structure(self._data_dict):
-            yield xmltodict.unparse(mutated_data,full_document=False)
+        dict_copy = copy.deepcopy(data)
+        for (k, v) in dict_copy.items():
+            if self.is_valid_dict_key(k):
+                new_dict = copy.deepcopy(dict_copy)
+                for i in range(1, n_duplicates):
+                    new_key = f"{k}{str(cyclic(i))}"
+                    new_dict[new_key] = dict_copy[k]
+                    yield new_dict
+
+    def mutate_elem(self, data: str) -> str:
+        """
+        Mutates a string value.
+        Return value has to be a string (xmltodict-specific)
+        """
+        self.mutators.set_input_str(str(data))
+        for mutated_str in self.mutators.mutate():
+            yield str(mutated_str)
+
+    def is_valid_dict_key(self, key: str) -> bool:
+        """
+        Checks whether a key is a valid modifiable xmltodict key.
+        I.e. #text will be ignored
+        """
+        return key != "#text"
+
+    def format_data_dict(self, data: dict) -> str:
+        """
+        Function to convert a dictionary to string.
+        """
+        return xmltodict.unparse(data, full_document=False)
