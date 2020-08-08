@@ -2,7 +2,7 @@
 
 | Kevin Chan | Kevin Yu | Adam Stucci | Le Pham  | Franklin Wu |
 | ---------- | -------- | ----------- | -------- | ----------- |
-| z5113136   | z5161477 | z5157372    | z5162043 | z5162043    |
+| z5113136   | z5117900 | z5157372    | z5162043 | z5162043    |
 
 
 In order to run our fuzzer, the current terminal command is "python3 fuzzer.py <binary file path> <input text file path>"
@@ -72,11 +72,11 @@ XML1 - Format string exploit - segmentation fault when "%s" was appended into on
 
 XML2 - Buffer Overflow - segementation fault when large strings with cyclic characters were inserted into every field given in the input text file which may have overflowed the buffer storing that input, thus overwriting important values in the registers on the stack and causing a crash in the program.
 
-XML3 - Buffer Overflow - segmentation fault when more than 1 million lines were sent to the binary which may have overflowed the buffer storing that input, thus overwriting important values in the registers on the stack and causing a crash in the program.
+XML3 - Buffer Overflow - ????? TODO: our fuzzer doesn't find this yet ????? - segmentation fault when more than 1 million lines were sent to the binary which may have overflowed the buffer storing that input, thus overwriting important values in the registers on the stack and causing a crash in the program.
 
 Plaintext1 - Buffer Overflow - segmentation fault when any character was appended onto the original input which may have overflowed the buffer storing that input, thus overwriting important values in the registers on the stack and causing a crash in the program.
 
-Plaintext2 - ???????????????????
+Plaintext2 - Integer Overflow - ????? TODO: our fuzzer doesn't find this yet ?????? - 
 
 Plaintext3 - Random Byte flip - segmentation fault was triggered after flipping random bytes after "JPG" characters. This may have resulted in sending characters in which the binary is unable to read which then crashed the program such as inserting non-ascii or special characters.
 
@@ -94,5 +94,15 @@ We wanted to improve our speed of finding vulnerabilities using
 
 Something Awesome:
 -------------------------------------------------------------------------------------------------------
+
+**Multiprocessing**
+????? NOT FINAL 
+- We began with understanding the principles of parallelism and distributing work given a known fixed total work (i.e. `sleep(0.1)` 100000 times) to validate the approach
+- When implementing it into fuzzer itself, we found it was no more performant than the single threaded single process implementation we originally had
+- Using `python -m cProfile -s time fuzzer.py ...` gave us performance metrics and insights into where our current bottle necks were
+- We identified that using pwntools wasn't as performant as expected due to extensive locking issues (specificially blocked by `lock.acquire`, and the issue scaled proportionately with the number of parallel processes) when spawning the binary with multiple processes
+- We experimented with a few other process spawning libraries until we found `subprocess.check_output()`, which atomically ran the binary with piped input and returned output and/or any errors!
+-----INSERT NUMBERS FOR PERF IMPROV-----
+?????
 
 ???
