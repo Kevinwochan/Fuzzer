@@ -33,8 +33,7 @@ class BufOverflowMutator(BaseMutator):
         # Append input with various strings
         for i in range(0, max_length, step):
             strings = self.input_str + "".join(
-                random.choice(string.printable) for s in range(i)
-            )
+                random.choice(string.printable) for s in range(i))
             yield strings
 
         # Append new lines
@@ -44,34 +43,4 @@ class BufOverflowMutator(BaseMutator):
             newlines = newlines.decode("utf-8")
             yield newlines
 
-        # Append random delimiters and characters
-        # delimiters = [
-        #     "'",
-        #     '"',
-        #     ",",
-        #     ".",
-        #     ";",
-        #     "/",
-        #     "\\",
-        #     "{",
-        #     "}",
-        #     "[",
-        #     "]",
-        #     "-",
-        #     "=",
-        #     "+",
-        #     "&",
-        #     "?",
-        #     "#",
-        #     "(",
-        #     ")",
-        #     "@",
-        #     "!",
-        # ]
-        # for delim in delimiters:
-        #     for i in range(0, max_length, step):
-        #         delim_str = self.input_str + (
-        #             (delim + random.choice(string.ascii_letters)) * i
-        #         )
-        #         yield delim_str
-        # self.is_empty = True
+        self.is_empty = True
