@@ -3,6 +3,7 @@ import json
 from handlers.base_handler import BaseHandler
 from mutators.super_mutator import SuperMutator
 from pwn import cyclic
+from handlers.infinite_helper import InfiniteHandler
 
 
 class DictionaryHandler(BaseHandler):
@@ -36,7 +37,6 @@ class DictionaryHandler(BaseHandler):
             }]
         }
     """
-
     def __init__(self, data: dict, data_raw: str):
         super().__init__(data_raw)
         self._data_dict = data
@@ -115,11 +115,9 @@ class DictionaryHandler(BaseHandler):
         for mutated_str in self.mutators.mutate():
             yield mutated_str
 
-    def generate_duplicate_key_dict(
-        self,
-        data: dict,
-        n_duplicates: int = 256
-    ) -> dict:
+    def generate_duplicate_key_dict(self,
+                                    data: dict,
+                                    n_duplicates: int = 256) -> dict:
         """
         Generates a dictionary with duplicated keys.
         Default duplications: 256.
@@ -132,11 +130,9 @@ class DictionaryHandler(BaseHandler):
                 new_dict[new_key] = dict_copy[k]
                 yield new_dict
 
-    def generate_duplicate_list_items(
-        self,
-        data: list,
-        n_duplicates: int = 256
-    ) -> list:
+    def generate_duplicate_list_items(self,
+                                      data: list,
+                                      n_duplicates: int = 256) -> list:
         """
         Generates a list with duplicated items.
         Default duplications: 256.
@@ -166,3 +162,7 @@ class DictionaryHandler(BaseHandler):
         # Mutate values
         for mutated_data in self.mutate_structure(self._data_dict):
             yield self.format_data_dict(mutated_data)
+
+        inf_handler = InfiniteHandler(self._data_dict, self.data_raw)
+        for muated_data in inf_handler.generate_input():
+            yield mutated_data

@@ -15,16 +15,6 @@ class BufOverflowMutator(BaseMutator):
         max_length: maximum length of the payload (default 1024)
         step: increment step (default 128)
         """
-        # Multiply random lines
-        lines = self.input_str.split("\n")
-        n_lines = len(lines)
-        for i in range(0, max_length, step):
-            rand_line_index = random.randint(0, n_lines - 1)
-            for j in range(i):
-                lines.append(lines[rand_line_index])
-            multi_lines = "\n".join(lines)
-            yield multi_lines
-
         # Append input with random cyclic characters
         for i in range(0, max_length, step):
             classic = self.input_str + cyclic(i).decode("utf-8")
@@ -43,4 +33,13 @@ class BufOverflowMutator(BaseMutator):
             newlines = newlines.decode("utf-8")
             yield newlines
 
+    def infinite_mutate(self):
+        """
+        big boi payloads, bad docs tho :/
+        """
+        # Append input with random cyclic characters
+        string_buffer = 'A'
+        while True:
+            string_buffer = string_buffer * 2
+            yield string_buffer
         self.is_empty = True

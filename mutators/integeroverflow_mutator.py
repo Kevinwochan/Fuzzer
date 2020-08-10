@@ -19,3 +19,10 @@ class IntOverflowMutator(BaseMutator):
             yield str(value)  # large value
             value = 2 * value  # same as logical left shift
         self.is_empty = True
+
+    def infinite_mutation(self) -> str:
+        value = 1
+        while True:
+            yield value
+            yield value * -1
+            value += 1

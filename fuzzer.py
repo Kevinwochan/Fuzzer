@@ -30,13 +30,12 @@ def task(gen, ioController, queue):
 if __name__ == "__main__":
     BINARY = sys.argv[1]
     FILENAME = sys.argv[2]
-    MULTI = sys.argv[3]
     tic = timeit.default_timer()
 
     ioController = IoController(BINARY, FILENAME)
     handlers = ioController.get_handlers()
 
-    if MULTI == "No":
+    if len(sys.argv) > 2:
         print("normal")
         start_single = timeit.default_timer()
         for handler in handlers:
@@ -46,7 +45,7 @@ if __name__ == "__main__":
                     print(
                         f'time taken: {timeit.default_timer() - start_single}')
                     exit()
-    elif MULTI == "Yes":
+    else:
         print("multi-process checkoutput")
         twac = timeit.default_timer()
         for handler in handlers:  #would want to append the different handlers to our initially created processes rather than killing and creating new processes
