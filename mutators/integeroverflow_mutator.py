@@ -8,18 +8,14 @@ class IntOverflowMutator(BaseMutator):
     def __init__(self, input_str: str = ""):
         super().__init__(input_str)
 
-    def mutate(self, step=1, start=2**31) -> int:
+    def mutate(self) -> str:
         """
         Return out-of-bound integers
         """
-        # TODO: currently this breaks the program
-        # 'int' object has no attribute 'encode'
-
-        # value = start
-        # for _ in range(step, 64):
-        #     yield value*-1    # large negative value
-        #     yield value       # large value
-        #     value = value**2  # same as logical left shift
-        # self.is_empty = True
-
-        yield str(start)
+        value = 2
+        for _ in range(1, 64):
+            yield str(value * -1 + 1)  # large negative value
+            yield str(value * -1)  # large negative value
+            yield str(value)  # large value
+            value = 2 * value  # same as logical left shift
+        self.is_empty = True
