@@ -163,6 +163,11 @@ class DictionaryHandler(BaseHandler):
         for mutated_str in self.mutators.mutate():
             yield mutated_str
 
+        # Duplicates raw data
+        for i in range(8):
+            n_duplicates = 10**i
+            yield self.data_raw * n_duplicates
+
         # Mutate values
         for mutated_data in self.mutate_structure(self._data_dict):
             yield self.format_data_dict(mutated_data)
