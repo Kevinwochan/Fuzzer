@@ -6,6 +6,18 @@ Run `python3 fuzzer.py program sampleinput.txt` to run fuzzer.
 
 Run `python3 -m unittest` to run unit tests.
 
+Run `python3 fuzzer program sampleinput.txt` to run fuzzer.
+
+Run `python3 utils/adam.py` to run fuzzer against multiple binaries.
+Examples:
+```
+python3 utils/adam.p
+python3 utils/adam.p --bins csv*  # will run the fuzzer against all csv files
+python3 utils/adam.p --bins 1     # will run the fuzzer against all binaries with a 1
+python3 utils/adam.p --bins csv1 json1 # will run the fuzzer against csv1 and json1
+```
+
+
 ## Installation
 
 ```shell
