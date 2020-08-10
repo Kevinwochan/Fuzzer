@@ -58,6 +58,7 @@ for filename in sorted(os.listdir('files')):
         os.remove('bad.txt')
 
     print(f'=== Testing {filename} ===')
+    total_time = 0
     try:
         cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt Yes > /dev/null'
         if args.debug:
@@ -67,6 +68,7 @@ for filename in sorted(os.listdir('files')):
         total_time = time.time() - start
         print(f'time taken: {total_time}s')
     except:
+        total_time = time.time() - start
         print('FAILED: timed out')
         test_summary.append(
             [WARNING + filename, 'FAILED: timed out', total_time])
