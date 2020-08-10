@@ -167,8 +167,6 @@ class IoController:
                 print(e)
                 self.report_vuln(input_str)
                 return True
-            else:
-                print(e.returncode)
         return False
 
     def run2(self, input_str: str = "") -> bool:

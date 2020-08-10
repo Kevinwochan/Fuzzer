@@ -51,9 +51,7 @@ if __name__ == "__main__":
         twac = timeit.default_timer()
         for handler in handlers:  #would want to append the different handlers to our initially created processes rather than killing and creating new processes
             gen = handler.generate_input()
-            alsdf = timeit.default_timer()
             inputs = list(gen)
-            print(f"{timeit.default_timer() - alsdf} sdf")
             processes = []
             NUM_PROCS = mp.cpu_count()
             queue = mp.Queue(2)
