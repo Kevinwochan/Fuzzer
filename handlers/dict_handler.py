@@ -164,7 +164,7 @@ class DictionaryHandler(BaseHandler):
             yield mutated_str
 
         # Duplicates raw data
-        for i in range(8):
+        for i in range(4, 8):
             n_duplicates = 10**i
             yield self.data_raw * n_duplicates
 
