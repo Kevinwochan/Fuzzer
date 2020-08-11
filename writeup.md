@@ -70,12 +70,16 @@ By using a lower level language we would be able to optimise the program’s mem
 **Tracking code coverage**
 Our current implementation is a dumb fuzzer that does not take into account the logic of the tested binary, we could integrate our fuzzer with a disassembler like IDA’s API and give our mutations a heuristic to explore unvisited code paths. 
 
+**Infinite payloads**
+Our current implementation relies on a finite set of payloads to be divided between parallel processes. This means that we do not test extreme payloads such as large numbers great than 18446744073709551615 or buffer overflows larger than 1GB.
+
 Something Awesome
 -------------------------------------------------------------------------------------------------------
 **Testing Script**
 - The fuzzer has a companion testing script that allows for users to run the fuzzer against a set of binaries and sample input files
 - produces a folder called solved containing all malicious inputs that found vulnerabilities
 - produces a test report
+
 ```
 Binary      Status                   Time
 ----------  -----------------  ----------
@@ -94,7 +98,6 @@ xml3        PASSED!             205.698
 **Round Robin Scheduling**
 - Each mutator will generate increasingly complex payloads
 - The fuzzer uses a round robin scheme for generating payloads ensuring the simplest form of the malicious input is found
-- On average the round robin scheme will find vulnerabilities faster and allows an infinite set of payloads to be queued
 
 **Multiprocessing**
 - We began with understanding the principles of parallelism and distributing work given a known fixed total work (i.e. `sleep(0.1)` 100000 times) to validate the approach
