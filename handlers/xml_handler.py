@@ -16,7 +16,7 @@ class XMLHandler(DictionaryHandler):
 
     def __init__(self, data: dict, data_raw: str):
         super().__init__(data, data_raw)
-        tags, attributes = corpus.xml_corpus('generators/xml3.txt')
+        tags, attributes = corpus.xml_corpus(corpus.XML_TEXT)
         self.xml_gen = XmlGenerator(tags, attributes)
 
     def generate_input(self) -> str:

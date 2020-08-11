@@ -1,5 +1,23 @@
 import xml.etree.ElementTree as ET
 
+XML_TEXT = '''<html>
+    <head>
+        <link href="http://somewebsite.com" />
+    </head>
+    <body>
+        <h1>I'm not a web developer. still</h1>
+    </body>
+
+    <div id="#lol">
+        <a href="http://google.com">Here is some link...</a>
+    </div>
+
+
+    <tail>
+        <a href="http://bing.com">Footer link</a>
+    </tail>
+</html>'''
+
 
 def xml_corpus_files(files):
     tags = set()
@@ -14,8 +32,9 @@ def xml_corpus_files(files):
 def xml_corpus(file):
     tags = set()
     attributes = dict()
-    tree = ET.parse(file)
-    root = tree.getroot()
+    tree = ET.fromstring(file)
+    # root = tree.getroot()
+    root = tree
     extract_xml_corpus(root, tags, attributes)
     return (tags, attributes)
 
