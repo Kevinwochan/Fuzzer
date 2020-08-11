@@ -160,7 +160,7 @@ class DictionaryHandler(BaseHandler):
         """
         # Feed my hungry mutators
         self.mutators.set_input_str(self.data_raw)
-        for mutated_str in self.mutators.ordered_mutate():
+        for mutated_str in self.mutators.mutate():
             yield mutated_str
 
         # Mutate values
