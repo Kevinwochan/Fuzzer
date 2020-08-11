@@ -9,6 +9,8 @@ import subprocess
 import argparse
 import time
 import shutil
+import distro
+import multiprocessing as mp
 from tabulate import tabulate
 
 OKGREEN = '\033[92m'
@@ -102,5 +104,11 @@ for filename in sorted(os.listdir('files')):
          str(total_time) + ENDCOLOR])
 
 headers = ['Binary', 'Status', 'Time']
-
+TITLE = 'Diagnostic information\n----------------------'
+SYS_VER = sys.version.split('\n')
+LINUX_VER = 'Linux distribution: ' + ' '.join(distro.linux_distribution())
+NUM_PROC = 'Number of available processors: ' + str(mp.cpu_count())
+PYTHON_VER = 'Python version: ' + SYS_VER[0].split(' ')[0]
+GCC_VER = 'GCC version: ' + SYS_VER[1]
+print('\n'.join([TITLE, LINUX_VER, NUM_PROC, PYTHON_VER, GCC_VER]))
 print(tabulate(test_summary, headers=headers))
