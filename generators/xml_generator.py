@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 #import generators.corpus as corpus
-import corpus
+import generators.corpus as corpus
 import random
 
 class XmlGenerator:

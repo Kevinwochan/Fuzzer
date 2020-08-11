@@ -24,8 +24,8 @@ class XMLHandler(DictionaryHandler):
             yield input
         for input in self.xml_gen.generate():
             yield input
-        for input in self.generate_raw_duplicate():
-            yield input
+        # for input in self.generate_raw_duplicate():
+        #     yield input
 
     def mutate_dict(self, data: dict) -> dict:
         """
