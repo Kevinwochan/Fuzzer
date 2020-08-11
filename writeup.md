@@ -81,6 +81,13 @@ Something Awesome
 - produces a test report
 
 ```
+Diagnostic information
+----------------------
+Linux distribution: Ubuntu 18.04 bionic
+Number of available processors: 8
+Python version: 3.8.0
+GCC version: [GCC 8.3.0]
+
 Binary      Status                   Time
 ----------  -----------------  ----------
 csv1        PASSED!              0.573441
@@ -105,4 +112,6 @@ xml3        PASSED!             205.698
 - Using `python -m cProfile -s time fuzzer.py ...` gave us performance metrics and insights into where our current bottle necks were
 - We identified that using pwntools wasn't as performant as expected due to extensive locking issues (specifically blocked by `lock.acquire`, and the issue scaled proportionately with the number of parallel processes) when spawning the binary with multiple processes
 - We experimented with a few other process spawning libraries until we found `subprocess.check_output()`, which atomically ran the binary with piped input and returned output and/or any errors!
+
+
 
