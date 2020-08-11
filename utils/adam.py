@@ -14,6 +14,7 @@ from tabulate import tabulate
 OKGREEN = '\033[92m'
 WARNING = '\033[93m'
 FAIL = '\033[91m'
+ENDCOLOR = '\x1b[0m'
 
 sys.path.append('../')
 
@@ -61,8 +62,6 @@ for filename in sorted(os.listdir('files')):
     total_time = 0
     try:
         cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt Yes > /dev/null'
-        if args.debug:
-            cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt'
         start = time.time()
         p = subprocess.run(cmd, timeout=int(args.timeout), shell=True)
         total_time = time.time() - start
@@ -70,15 +69,21 @@ for filename in sorted(os.listdir('files')):
     except:
         total_time = time.time() - start
         print('FAILED: timed out')
-        test_summary.append(
-            [WARNING + filename, 'FAILED: timed out', total_time])
+        test_summary.append([
+            WARNING + filename, 'FAILED: timed out',
+            str(total_time) + ENDCOLOR
+        ])
         continue
 
+    # Verify bad.txt file output was created
     if not os.path.exists('bad.txt'):
         print('FAILED: vulnerability not found')
-        test_summary.append(
-            [FAIL + filename, 'FAILED: vulnerability not found', total_time])
+        test_summary.append([
+            FAIL + filename, 'FAILED: vulnerability not found',
+            str(total_time) + ENDCOLOR
+        ])
         continue
+    # Verify vulnerabilitie produces error code
     shutil.copy('bad.txt', f'solved/{filename}.txt')
     cmd = f'cat bad.txt | files/{filename} > /dev/null'
     if args.debug:
@@ -87,11 +92,14 @@ for filename in sorted(os.listdir('files')):
     if p.returncode == 0:
         print('FAILED: could not replicate crash')
         test_summary.append([
-            WARNING + filename, 'FAILED: could not replicate crash', total_time
+            WARNING + filename, 'FAILED: could not replicate crash',
+            str(total_time) + ENDCOLOR
         ])
         continue
     print('PASSED!')
-    test_summary.append([OKGREEN + filename, 'PASSED!', total_time])
+    test_summary.append(
+        [OKGREEN + filename, 'PASSED!',
+         str(total_time) + ENDCOLOR])
 
 headers = ['Binary', 'Status', 'Time']
 
