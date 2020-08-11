@@ -61,7 +61,7 @@ for filename in sorted(os.listdir('files')):
     print(f'=== Testing {filename} ===')
     total_time = 0
     try:
-        cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt Yes > /dev/null'
+        cmd = f'python3 fuzzer.py files/{filename} files/{filename}.txt > /dev/null'
         start = time.time()
         p = subprocess.run(cmd, timeout=int(args.timeout), shell=True)
         total_time = time.time() - start
