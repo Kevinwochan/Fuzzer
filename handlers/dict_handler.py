@@ -36,7 +36,6 @@ class DictionaryHandler(BaseHandler):
             }]
         }
     """
-
     def __init__(self, data: dict, data_raw: str):
         super().__init__(data_raw)
         self._data_dict = data
@@ -115,11 +114,9 @@ class DictionaryHandler(BaseHandler):
         for mutated_str in self.mutators.mutate():
             yield mutated_str
 
-    def generate_duplicate_key_dict(
-        self,
-        data: dict,
-        n_duplicates: int = 256
-    ) -> dict:
+    def generate_duplicate_key_dict(self,
+                                    data: dict,
+                                    n_duplicates: int = 256) -> dict:
         """
         Generates a dictionary with duplicated keys.
         Default duplications: 256.
@@ -132,11 +129,9 @@ class DictionaryHandler(BaseHandler):
                 new_dict[new_key] = dict_copy[k]
                 yield new_dict
 
-    def generate_duplicate_list_items(
-        self,
-        data: list,
-        n_duplicates: int = 256
-    ) -> list:
+    def generate_duplicate_list_items(self,
+                                      data: list,
+                                      n_duplicates: int = 256) -> list:
         """
         Generates a list with duplicated items.
         Default duplications: 256.
@@ -164,9 +159,8 @@ class DictionaryHandler(BaseHandler):
             yield mutated_str
 
         # Duplicates raw data
-        for i in range(4, 8):
-            n_duplicates = 10**i
-            yield self.data_raw * n_duplicates
+        # n_duplicates = 10**7
+        # yield self.data_raw * n_duplicates
 
         # Mutate values
         for mutated_data in self.mutate_structure(self._data_dict):
