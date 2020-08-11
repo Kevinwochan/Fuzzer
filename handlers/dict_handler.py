@@ -149,6 +149,10 @@ class DictionaryHandler(BaseHandler):
         """
         return json.dumps(data, indent=4)
 
+    def generate_raw_duplicate(self):
+        for i in range(1,9):
+            yield self.data_raw * (10**i)
+
     def generate_input(self) -> str:
         """
         Generate mutated strings from the initial input file.
