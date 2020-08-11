@@ -9,6 +9,7 @@ from handlers.csv_handler import CsvHandler
 from handlers.json_handler import JsonHandler
 from handlers.xml_handler import XMLHandler
 from handlers.plaintext_handler import PlaintextHandler
+import multiprocessing as mp
 import subprocess
 
 OUTPUT = "bad.txt"
@@ -20,7 +21,6 @@ class IoController:
     filetype = io.gettype()
     io.run("input_string")
     """
-
     def __init__(self, binary_path: str = "", input_path: str = ""):
         self.binary_path = binary_path
         self.input_path = input_path
@@ -194,6 +194,44 @@ class IoController:
         else:
             p.close()
             return False
+
+    def process(self, q, binary_path):
+        while True:
+            task = q.get()
+            if task is None:
+                break
+            try:
+                output = subprocess.check_output(
+                    [binary_path],
+                    input=task.encode(),
+                )
+            except subprocess.CalledProcessError as e:
+                if (e.returncode == -11):
+                    for _ in range(NCORES):  # tell workers we're done
+                        q.put(None)
+                    self.report_vuln(task)
+                    return True
+                else:
+                    print(e.returncode)
+            return False
+
+    def go(self) -> None:
+        NCORES = mp.cpu_count()
+        generators = [handler.generate_input() for handler in self.handlers]
+
+        #isDone = mp.Queue(2)
+        for generator in generators:
+            q = mp.Queue(maxsize=NCORES)
+            pool = mp.Pool(NCORES, initializer=self.process, initargs=(q, self.binary_path))
+
+            for task in generator:
+               # if isDone.get():
+               #     pool.close()
+               #     pool.join()
+                q.put(task)  # blocks until q below its max size
+
+            pool.close()
+            pool.join()
 
     def warn_unhandled_ftype(self) -> None:
         log.warn(f"{self.input_path} unsupported")
