@@ -5,6 +5,8 @@ import xmltodict
 import copy
 from pwn import cyclic
 from handlers.dict_handler import DictionaryHandler
+from generators.xml_generator import XmlGenerator
+import generators.corpus as corpus
 
 
 class XMLHandler(DictionaryHandler):
@@ -14,6 +16,16 @@ class XMLHandler(DictionaryHandler):
 
     def __init__(self, data: dict, data_raw: str):
         super().__init__(data, data_raw)
+        tags, attributes = corpus.xml_corpus('generators/xml3.txt')
+        self.xml_gen = XmlGenerator(tags, attributes)
+
+    def generate_input(self) -> str:
+        for input in super().generate_input():
+            yield input
+        for input in self.xml_gen.generate():
+            yield input
+        for input in self.generate_raw_duplicate():
+            yield input
 
     def mutate_dict(self, data: dict) -> dict:
         """
