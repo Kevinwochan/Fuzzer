@@ -20,7 +20,8 @@ class IntOverflowMutator(BaseMutator):
             value = 2 * value  # same as logical left shift
         self.is_empty = True
 
-    def infinite_mutation(self) -> str:
+    def infinite_mutate(self) -> str:
+        yield 0
         value = 1
         while True:
             yield value

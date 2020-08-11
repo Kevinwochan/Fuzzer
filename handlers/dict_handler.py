@@ -7,6 +7,7 @@ from handlers.base_handler import BaseHandler
 from mutators.super_mutator import SuperMutator
 from pwn import cyclic
 from handlers.infinite_handler import InfiniteHandler
+import time
 
 
 class DictionaryHandler(BaseHandler):
@@ -157,27 +158,19 @@ class DictionaryHandler(BaseHandler):
         """
         Generate mutated strings from the initial input file.
         """
-        print('***' * 10)
         # Feed my hungry mutators
-        #self.mutators.set_input_str(self.data_raw)
-        #for mutated_str in self.mutators.mutate():
-        #    yield mutated_str
+        self.mutators.set_input_str(self.data_raw)
+        for mutated_str in self.mutators.ordered_mutate():
+            yield mutated_str
 
-        ## Mutate values
-        #for mutated_data in self.mutate_structure(self._data_dict):
-        #    yield self.format_data_dict(mutated_data)
+        # Mutate values
+        for mutated_data in self.mutate_structure(self._data_dict):
+            yield self.format_data_dict(mutated_data)
 
-        #for mutated_data in self.generate_duplicate_key_dict(
-        #        self._data_dict, 10**6):
-        #    yield self.format_data_dict(mutated_data)
+        for mutated_data in self.generate_duplicate_key_dict(
+                self._data_dict, 10**6):
+            yield self.format_data_dict(mutated_data)
 
         inf_handler = InfiniteHandler(self._data_dict, self.data_raw)
-        for mutated_data in inf_handler.generate_input(stop=10):
-            print(mutated_data)
-            yield mutated_data
-
-
-print('=' * 10)
-d = DictionaryHandler({'a': 'b', 'c': 'd'}, '{\n"a":"b",\n"c":"d"\n}')
-list(d.generate_input())
-print('=' * 10)
+        for mutated_data in inf_handler.generate_input():
+            yield self.format_data_dict(mutated_data)

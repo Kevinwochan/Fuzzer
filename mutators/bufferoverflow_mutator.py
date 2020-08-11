@@ -32,6 +32,7 @@ class BufOverflowMutator(BaseMutator):
             newlines = byte_str + (b"\x0a" * i)
             newlines = newlines.decode("utf-8")
             yield newlines
+        self.is_empty = True
 
     def infinite_mutate(self):
         """
@@ -40,6 +41,5 @@ class BufOverflowMutator(BaseMutator):
         # Append input with random cyclic characters
         string_buffer = 'A'
         while True:
-            string_buffer = string_buffer * 2
+            string_buffer = ''.join(string_buffer, string_buffer)
             yield string_buffer
-        self.is_empty = True
