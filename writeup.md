@@ -65,20 +65,41 @@ Improvements:
 The following improvements could have been made given more time:
 
 **Implementing the fuzzer in a low level language**
-This would have allowed us to optimise the program’s memory management more to allow a large set of payloads to be tested against the binary.
+By using a lower level language we would be able to optimise the program’s memory management and reduces the overhead of a high level language. With a faster program we would be able to test a larger set of payloads against the binary.
 
 **Tracking code coverage**
-Our current implementation is a dumb fuzzer that does not take into account the logic of the tested binary, we could integrate our fuzzer with a disassembler like IDA’s API and given our mutations a heuristic to explore unvisited code paths. 
+Our current implementation is a dumb fuzzer that does not take into account the logic of the tested binary, we could integrate our fuzzer with a disassembler like IDA’s API and give our mutations a heuristic to explore unvisited code paths. 
 
 Something Awesome
 -------------------------------------------------------------------------------------------------------
-**testing script**
+**Testing Script**
+- The fuzzer has a companion testing script that allows for users to run the fuzzer against a set of binaries and sample input files
+- produces a folder called solved containing all malicious inputs that found vulnerabilities
+- produces a test report
+```
+Binary      Status                   Time
+----------  -----------------  ----------
+csv1        PASSED!              0.573441
+csv2        PASSED!              0.728198
+json1       PASSED!              0.525411
+json2       PASSED!              0.524256
+plaintext1  PASSED!              0.528062
+plaintext2  PASSED!              1.6906
+plaintext3  PASSED!              1.08261
+xml1        PASSED!             13.1352
+xml2        PASSED!              5.97595
+xml3        PASSED!             205.698
+```
+
+**Round Robin Scheduling**
+- Each mutator will generate increasingly complex payloads
+- The fuzzer uses a round robin scheme for generating payloads ensuring the simplest form of the malicious input is found
+- On average the round robin scheme will find vulnerabilities faster and allows an infinite set of payloads to be queued
+
 **Multiprocessing**
-????? NOT FINAL
 - We began with understanding the principles of parallelism and distributing work given a known fixed total work (i.e. `sleep(0.1)` 100000 times) to validate the approach
 - When implementing it into fuzzer itself, we found it was no more performant than the single threaded single process implementation we originally had
 - Using `python -m cProfile -s time fuzzer.py ...` gave us performance metrics and insights into where our current bottle necks were
 - We identified that using pwntools wasn't as performant as expected due to extensive locking issues (specifically blocked by `lock.acquire`, and the issue scaled proportionately with the number of parallel processes) when spawning the binary with multiple processes
 - We experimented with a few other process spawning libraries until we found `subprocess.check_output()`, which atomically ran the binary with piped input and returned output and/or any errors!
------INSERT NUMBERS FOR PERF IMPROV-----
-?????
+
