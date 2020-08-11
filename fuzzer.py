@@ -30,12 +30,13 @@ def task(gen, ioController, queue):
 if __name__ == "__main__":
     BINARY = sys.argv[1]
     FILENAME = sys.argv[2]
+    MULTI = sys.argv[3]
     tic = timeit.default_timer()
 
     ioController = IoController(BINARY, FILENAME)
     handlers = ioController.get_handlers()
 
-    if len(sys.argv) > 2:
+    if MULTI == "No":
         print("normal")
         start_single = timeit.default_timer()
         for handler in handlers:
@@ -45,28 +46,27 @@ if __name__ == "__main__":
                     print(
                         f'time taken: {timeit.default_timer() - start_single}')
                     exit()
-    print("multi-process checkoutput")
-    twac = timeit.default_timer()
-    for handler in handlers:  #would want to append the different handlers to our initially created processes rather than killing and creating new processes
-        gen = handler.generate_input()
-        alsdf = timeit.default_timer()
-        inputs = list(gen)
-        print(f"{timeit.default_timer() - alsdf} sdf")
-        processes = []
-        NUM_PROCS = mp.cpu_count()
-        queue = mp.Queue(2)
-        for i in range(0, len(inputs), int(len(inputs) / NUM_PROCS)):
-            spl_inputs = inputs[i:i + int(len(inputs) / NUM_PROCS)]
-            p = mp.Process(target=task,
-                           args=(
-                               spl_inputs,
-                               ioController,
-                               queue,
-                           ))
-            processes.append(p)
-            p.start()
-        if queue.get():
-            for process in processes:
-                if process.is_alive(): process.kill()
-                #process.join()
-        queue.close()
+    elif MULTI == "Yes":
+        print("multi-process checkoutput")
+        twac = timeit.default_timer()
+        for handler in handlers:  #would want to append the different handlers to our initially created processes rather than killing and creating new processes
+            gen = handler.generate_input()
+            inputs = list(gen)
+            processes = []
+            NUM_PROCS = mp.cpu_count()
+            queue = mp.Queue(2)
+            for i in range(0, len(inputs), int(len(inputs) / NUM_PROCS)):
+                spl_inputs = inputs[i:i + int(len(inputs) / NUM_PROCS)]
+                p = mp.Process(target=task,
+                               args=(
+                                   spl_inputs,
+                                   ioController,
+                                   queue,
+                               ))
+                processes.append(p)
+                p.start()
+            if queue.get():
+                for process in processes:
+                    if process.is_alive(): process.kill()
+                    #process.join()
+            queue.close()
