@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 #import generators.corpus as corpus
 import generators.corpus as corpus
+#import corpus
 import random
 
 class XmlGenerator:
@@ -55,16 +56,20 @@ class XmlGenerator:
 
     def generate(self) -> str:
 
-        for i in range(6):
-            self.max_ancestors += i
-            for j in range(6):
-                self.max_children += j
-                xml = self.generate_xml()
-                yield ET.tostring(xml, encoding='utf8', method='xml').decode('utf8')
+        # for i in range(6):
+        #     self.max_ancestors += i
+        #     for j in range(6):
+        #         self.max_children += j
+        #         xml = self.generate_xml()
+        #         yield ET.tostring(xml, encoding='utf8', method='xml').decode('utf8')
         
-        for i in range(1,7):
+        #nums = [100, 1000,10000,100000]
+        #for i in nums:
+        for i in range(1, 6):
             xml = self.deep_nest(10**i)
             yield self.deep_str(xml)
+        # xml = self.deep_nest(100000)
+        # yield self.deep_str(xml)
 
 
     #also try to build a dense one so malloc runs out
